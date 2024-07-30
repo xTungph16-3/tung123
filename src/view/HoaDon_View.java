@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -52,20 +53,19 @@ import utils.XLogin;
 public class HoaDon_View extends javax.swing.JPanel {
 
     private HoaDonDAO dao = new HoaDonDAO();
+
     private HoaDonChiTietDAO dao2 = new HoaDonChiTietDAO();
-    // private DefaultTableModel model = new DefaultTableModel();
+
     double soTrangLe;
     int soTrang;
     int tienLui = 0;
     int viTriTrang = 1;
 
-    /**
-     * Creates new form HoaDon_View
-     */
     public HoaDon_View() {
         initComponents();
-        initComponents();
+
         fillTableHoaDon(dao.phanTrangHoaDon(tienLui));
+
         setSoTrang();
         //  fillTableHoaDonChiTiet(dao2.selectAll());
     }
@@ -91,6 +91,7 @@ public class HoaDon_View extends javax.swing.JPanel {
         for (HoaDon hd : list) {
             model.addRow(hd.toDaTaRow());
         }
+        System.out.println("Rows added to table: " + list.size()); // Add this line for debugging
     }
 
     public void showData(int index) {
@@ -100,27 +101,32 @@ public class HoaDon_View extends javax.swing.JPanel {
     }
 
     private void loadDataToTableHDCT(List<HoaDonChiTiet> lst) {
+
         DefaultTableModel model = (DefaultTableModel) tblHDCT.getModel();
 
         model.setRowCount(0);
+
+        int i = 1;
         String trangThaiHDCT = "";
+
         for (HoaDonChiTiet hdct : lst) {
+
             if (hdct.getTrangThaiHDCT().equalsIgnoreCase("Hoàn thành")) {
                 trangThaiHDCT = "<html><font color='green'><b>Hoàn thành</b></font></html>";
             } else if (hdct.getTrangThaiHDCT().equalsIgnoreCase("Chờ thanh toán")) {
                 trangThaiHDCT = "<html><font color='red'><b>Chờ thanh toán</b></font></html>";
             }
+
             model.addRow(new Object[]{
-                hdct.getMaSanPham(),
+                i++,
+                hdct.getSPCT_id(),
                 hdct.getTenSanPham(),
                 hdct.getSize(),
                 hdct.getMauSac(),
                 hdct.getChatLieu(),
-                hdct.getNhaCC(),
                 hdct.getGiaBan(),
                 hdct.getSoLuong(),
                 hdct.getThanhTien()
-            //trangThaiHDCT
             });
         }
     }
@@ -271,6 +277,11 @@ public class HoaDon_View extends javax.swing.JPanel {
                 cbo_TrangThaiItemStateChanged(evt);
             }
         });
+        cbo_TrangThai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbo_TrangThaiActionPerformed(evt);
+            }
+        });
 
         btnResetTable1.setText("Reset Table");
 
@@ -336,6 +347,9 @@ public class HoaDon_View extends javax.swing.JPanel {
         tblHD.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblHDMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                tblHDMouseEntered(evt);
             }
         });
         jScrollPane2.setViewportView(tblHD);
@@ -447,7 +461,7 @@ public class HoaDon_View extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Mã sản phầm", "Tên sản phẩm", "Size", "Màu sắc", "Chất liệu", "Nhà cung cấp", "Đơn giá", "Số lượng", "Thành tiền"
+                "STT", "Mã sản phầm", "Tên sản phẩm", "Size", "Màu sắc", "Chất liệu", "Đơn giá", "Số lượng", "Thành tiền"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -503,7 +517,6 @@ public class HoaDon_View extends javax.swing.JPanel {
         jLabel10.setText("Người mua:");
 
         lblTongTien.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        lblTongTien.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel11.setText("Tổng tiền:");
@@ -687,26 +700,54 @@ public class HoaDon_View extends javax.swing.JPanel {
 
     private void tblHDMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblHDMouseClicked
         // TODO add your handling code here:
-        String trangThai = tblHD.getValueAt(tblHD.getSelectedRow(), 8).toString();
+        int index = tblHD.getSelectedRow();
+
+        String trangThai = tblHD.getValueAt(index, 8).toString();
+
         if (trangThai.equalsIgnoreCase("Đã huỷ")) {
             trangThai = "<html><font color='red'>Đã huỷ</font></html>";
         } else if (trangThai.equalsIgnoreCase("Hoàn thành")) {
             trangThai = "<html><font color='green'>Hoàn thành</font></html>";
         }
-        String hoaDon_id = tblHD.getValueAt(tblHD.getSelectedRow(), 0).toString();
-        loadDataToTableHDCT(dao2.selectHDCT(hoaDon_id));
-        lblMaHD.setText(tblHD.getValueAt(tblHD.getSelectedRow(), 0).toString());
-        lblNgayTao.setText(tblHD.getValueAt(tblHD.getSelectedRow(), 7).toString());
-        lblNguoiMua.setText(tblHD.getValueAt(tblHD.getSelectedRow(), 4).toString());
-        lblNguoiTao.setText(tblHD.getValueAt(tblHD.getSelectedRow(), 2).toString());
-        lblTongTien.setText(tblHD.getValueAt(tblHD.getSelectedRow(), 5).toString() == null ? "0.00" : tblHD.getValueAt(tblHD.getSelectedRow(), 5).toString());
-        //   lblTrangThai.setText(tblHD.getValueAt(tblHD.getSelectedRow(), 8).toString());
-        lblTrangThai.setText(trangThai);
-        if (tblHD.getValueAt(tblHD.getSelectedRow(), 9) != null) {
-            txtGhiChu.setText(tblHD.getValueAt(tblHD.getSelectedRow(), 9).toString());
+
+        String hoaDon_id = tblHD.getValueAt(index, 0).toString();
+
+        // Load dữ liệu chi tiết hóa đơn
+        ArrayList<HoaDonChiTiet> list = dao2.selectHDCT(hoaDon_id);
+
+        // Kiểm tra xem danh sách chi tiết hóa đơn có trống hay không
+        if (list.isEmpty()) {
+            System.out.println("Không có chi tiết hóa đơn nào.");
         } else {
+            for (HoaDonChiTiet hoaDonChiTiet : list) {
+                System.out.println(hoaDonChiTiet);
+            }
+        }
+
+        // Cập nhật bảng chi tiết hóa đơn
+        loadDataToTableHDCT(list);
+
+        lblMaHD.setText(tblHD.getValueAt(index, 0).toString());
+
+        lblNgayTao.setText(tblHD.getValueAt(index, 7).toString());
+
+        lblNguoiMua.setText(tblHD.getValueAt(index, 4).toString());
+
+        lblNguoiTao.setText(tblHD.getValueAt(index, 2).toString());
+
+        lblTongTien.setText(tblHD.getValueAt(index, 5).toString() == null ? "0.00" : tblHD.getValueAt(index, 5).toString());
+
+        lblTrangThai.setText(trangThai);
+
+        if (tblHD.getValueAt(index, 9) != null) {
+
+            txtGhiChu.setText(tblHD.getValueAt(index, 9).toString());
+
+        } else {
+
             txtGhiChu.setText("");
         }
+
 
     }//GEN-LAST:event_tblHDMouseClicked
 
@@ -922,7 +963,7 @@ public class HoaDon_View extends javax.swing.JPanel {
                 Logger.getLogger(HoaDon_View.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-        }else{
+        } else {
             JOptionPane.showMessageDialog(this, "Hoá đơn đã trả hết hàng!!");
         }
 
@@ -973,6 +1014,14 @@ public class HoaDon_View extends javax.swing.JPanel {
 
 
     }//GEN-LAST:event_cbo_TrangThaiItemStateChanged
+
+    private void cbo_TrangThaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_TrangThaiActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbo_TrangThaiActionPerformed
+
+    private void tblHDMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblHDMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblHDMouseEntered
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

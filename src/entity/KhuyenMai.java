@@ -5,78 +5,48 @@
 package entity;
 
 import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  *
  * @author luuvi
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+
+
 public class KhuyenMai {
 
-    private int chuongTrinh_id;
+    private Integer chuongTrinh_id;
+
     private String ten;
+
     private String moTa;
+
     private Date ngayBD;
+
     private Date ngayKT;
-    private float giamGia;
 
-    public KhuyenMai() {
-    }
+    private Double giamGia;
 
-    public KhuyenMai(int chuongTrinh_id, String ten, String moTa, Date ngayBD, Date ngayKT, float giamGia) {
-        this.chuongTrinh_id = chuongTrinh_id;
+    private String trangThai;
+
+    public KhuyenMai(String ten, String moTa, Date ngayBD, Date ngayKT, Double giamGia, String trangThai) {
         this.ten = ten;
         this.moTa = moTa;
         this.ngayBD = ngayBD;
         this.ngayKT = ngayKT;
         this.giamGia = giamGia;
-    }
-
-    public int getChuongTrinh_id() {
-        return chuongTrinh_id;
-    }
-
-    public void setChuongTrinh_id(int chuongTrinh_id) {
-        this.chuongTrinh_id = chuongTrinh_id;
-    }
-
-    public String getTen() {
-        return ten;
-    }
-
-    public void setTen(String ten) {
-        this.ten = ten;
-    }
-
-    public String getMoTa() {
-        return moTa;
-    }
-
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
-    }
-
-    public Date getNgayBD() {
-        return ngayBD;
-    }
-
-    public void setNgayBD(Date ngayBD) {
-        this.ngayBD = ngayBD;
-    }
-
-    public Date getNgayKT() {
-        return ngayKT;
-    }
-
-    public void setNgayKT(Date ngayKT) {
-        this.ngayKT = ngayKT;
-    }
-
-    public float getGiamGia() {
-        return giamGia;
-    }
-
-    public void setGiamGia(float giamGia) {
-        this.giamGia = giamGia;
+        this.trangThai = trangThai;
     }
 
     public Object[] toDataRow() {
@@ -86,7 +56,8 @@ public class KhuyenMai {
             moTa,
             ngayBD,
             ngayKT,
-            giamGia
+            giamGia, 
+            trangThai
         };
     }
 

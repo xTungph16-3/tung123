@@ -5,71 +5,46 @@
 package entity;
 
 import javax.swing.JOptionPane;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  *
  * @author Trong Phu
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+
 public class ChatLieu {
-    private int id;
-    private String tenCL;
+
+    private Integer chatLieu_id;
+
+    private String tenChatLieu;
+
     private String nguonGoc;
+
     private String mota;
 
-    public ChatLieu() {
-    }
-
-    public ChatLieu(int id, String tenCL, String nguonGoc, String mota) {
-        this.id = id;
-        this.tenCL = tenCL;
+    public ChatLieu(String ten, String nguonGoc, String mota) {
+        this.tenChatLieu = ten;
         this.nguonGoc = nguonGoc;
         this.mota = mota;
     }
 
-    public ChatLieu(String tenCL, String nguonGoc, String mota) {
-        this.tenCL = tenCL;
-        this.nguonGoc = nguonGoc;
-        this.mota = mota;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTenCL() {
-        return tenCL;
-    }
-
-    public void setTenCL(String tenCL) {
-        this.tenCL = tenCL;
-    }
-
-    public String getNguonGoc() {
-        return nguonGoc;
-    }
-
-    public void setNguonGoc(String nguonGoc) {
-        this.nguonGoc = nguonGoc;
-    }
-
-    public String getMota() {
-        return mota;
-    }
-
-    public void setMota(String mota) {
-        this.mota = mota;
-    }
-
-    @Override
-    public String toString() {
-        return  tenCL;
-    }
-    
-    public Object [] DataCL(){
-        return new Object[] {this.id,this.tenCL,this.nguonGoc,this.mota};
+    public Object[] DataChatLieu() {
+        return new Object[]{
+            chatLieu_id,
+            tenChatLieu,
+            nguonGoc,
+            mota
+        };
     }
 }

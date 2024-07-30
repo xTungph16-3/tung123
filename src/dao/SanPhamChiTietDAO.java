@@ -5,7 +5,6 @@
 package dao;
 
 import entity.SanPhamChiTiet;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,25 +16,24 @@ import utils.DB_Connect;
  *
  * @author Trong Phu
  */
-public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
+public class SanPhamChiTietDAO {
 
     Connection con = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
     String sql = null;
 
-    @Override
     public List<SanPhamChiTiet> selectAll() {
         sql = """
-              SELECT  [sPCT_id]
+              SELECT [sPCT_id]
                     ,[soLuong]
                     ,[donGia]
                     ,[size_id]
-                    ,[chatLieu_id]
-                    ,[nhaCC_id]
                     ,[anh]
                     ,[mauSac_id]
                     ,[sanPham_id]
+                    ,[trangThai]
+                    ,[moTa]
                 FROM [dbo].[sanPhamChiTiet]
               """;
         List<SanPhamChiTiet> listSPCT = new ArrayList<>();
@@ -49,11 +47,12 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
                         rs.getInt("soLuong"),
                         rs.getBigDecimal("donGia"),
                         rs.getInt("size_id"),
-                        rs.getInt("chatLieu_id"),
-                        rs.getInt("nhaCC_id"),
                         rs.getString("anh"),
                         rs.getInt("mauSac_id"),
-                        rs.getString("sanPham_id"));
+                        rs.getString("sanPham_id"),
+                        rs.getString("trangThai"),
+                        rs.getString("moTa")
+                );
                 listSPCT.add(spct);
             }
             return listSPCT;
@@ -64,27 +63,24 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
     }
 
     public List<SanPhamChiTiet> selectAll2() {
-        sql = """
-              SELECT  [sPCT_id]
-                	,sanPham.sanPham_id
-                	,sanPham.[ten] [tenSanPham]
-                	,sanPhamChiTiet.trangThai
-                	,sanPhamChiTiet.moTa
-                      ,[soLuong]
-                      ,[donGia]
-                      ,size.[giaTri] [size]
-                      ,chatLieu.[ten] [tenChatlieu]
-                      ,nhaCungCap.[ten] [tenNhaCC]
-                      ,sanPhamChiTiet.anh
-                      ,mauSac.[tenMau] [tenMau]
-                  FROM [dbo].[sanPhamChiTiet] 
-                  join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id
-                  join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                  join size on size.size_id = sanPhamChiTiet.size_id
-                  join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                  join nhaCungCap on nhaCungCap.nhaCC_id = sanPhamChiTiet.nhaCC_id
-                
-              """;
+        String sql = """
+                        SELECT dbo.size.giaTri AS size, 
+                             dbo.sanPham.sanPham_id AS sanPham_id, 
+                             dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
+                             dbo.mauSac.tenMau AS mauSac, 
+                             dbo.chuongTrinhKhuyenMai.giamGia AS giamGia, 
+                             dbo.sanPham.ten AS tenSanPham, 
+                             dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                             dbo.sanPhamChiTiet.donGia AS donGia, 
+                             dbo.sanPhamChiTiet.trangThai AS trangThai,
+                             dbo.sanPhamChiTiet.moTa AS moTa
+                        FROM dbo.chuongTrinhKhuyenMai 
+                        INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+                        INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                        INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                        INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                        INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+          """;
         List<SanPhamChiTiet> listSPCT = new ArrayList<>();
         try {
             con = DB_Connect.getConnection();
@@ -97,13 +93,12 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
                         rs.getBigDecimal("donGia"),
                         rs.getString("sanPham_id"),
                         rs.getString("trangThai"),
-                        rs.getString("mota"),
+                        rs.getString("moTa"),
                         rs.getInt("size"),
-                        rs.getString("tenChatlieu"),
-                        rs.getString("tenNhaCC"),
-                        rs.getString("anh"),
-                        rs.getString("tenMau"),
-                        rs.getString("tenSanPham"));
+                        rs.getString("mauSac"),
+                        rs.getInt("giamGia"),
+                        rs.getString("tenSanPham")
+                );
                 listSPCT.add(spct);
             }
             return listSPCT;
@@ -115,25 +110,23 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
 
     public SanPhamChiTiet selectSPTCByID(String sPCT_id) {
         sql = """
-              SELECT  [sPCT_id]
-                	,sanPham.sanPham_id
-                	,sanPham.[ten] [tenSanPham]
-                	,sanPhamChiTiet.trangThai
-                	,sanPhamChiTiet.moTa
-                      ,[soLuong]
-                      ,[donGia]
-                      ,size.[giaTri] [size]
-                      ,chatLieu.[ten] [tenChatlieu]
-                      ,nhaCungCap.[ten] [tenNhaCC]
-                      ,sanPhamChiTiet.anh
-                      ,mauSac.[tenMau] [tenMau]
-                  FROM [dbo].[sanPhamChiTiet] 
-                  join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id
-                  join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                  join size on size.size_id = sanPhamChiTiet.size_id
-                  join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                  join nhaCungCap on nhaCungCap.nhaCC_id = sanPhamChiTiet.nhaCC_id
-              where sPCT_id like ?
+              SELECT    dbo.size.giaTri AS size, 
+                        dbo.sanPham.sanPham_id AS sanPham_id, 
+                        dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
+                        dbo.mauSac.tenMau AS mauSac, 
+                        dbo.chuongTrinhKhuyenMai.giamGia AS giamGia, 
+                        dbo.sanPham.ten AS tenSanPham, 
+                        dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                        dbo.sanPhamChiTiet.donGia AS donGia, 
+                        dbo.sanPhamChiTiet.trangThai AS trangThai,
+                        dbo.sanPhamChiTiet.moTa AS moTa
+              FROM dbo.chuongTrinhKhuyenMai 
+              INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+              INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+              INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+              INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+              INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+              where sPCT_id = ?
                 
               """;
         List<SanPhamChiTiet> listSPCT = new ArrayList<>();
@@ -149,13 +142,12 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
                         rs.getBigDecimal("donGia"),
                         rs.getString("sanPham_id"),
                         rs.getString("trangThai"),
-                        rs.getString("mota"),
+                        rs.getString("moTa"),
                         rs.getInt("size"),
-                        rs.getString("tenChatlieu"),
-                        rs.getString("tenNhaCC"),
-                        rs.getString("anh"),
-                        rs.getString("tenMau"),
-                        rs.getString("tenSanPham"));
+                        rs.getString("mauSac"),
+                        rs.getInt("giamGia"),
+                        rs.getString("tenSanPham")
+                );
                 listSPCT.add(spct);
             }
             return listSPCT.get(0);
@@ -168,25 +160,23 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
     /// hàm này thực hiện lọc sản phẩm chi tiết theo id sản phẩm cha
     public List<SanPhamChiTiet> selectSPTCByIDSP(String sP_id) {
         sql = """
-              SELECT  [sPCT_id]
-                	,sanPham.sanPham_id
-                	,sanPham.[ten] [tenSanPham]
-                	,sanPhamChiTiet.trangThai
-                	,sanPhamChiTiet.moTa
-                      ,[soLuong]
-                      ,[donGia]
-                      ,size.[giaTri] [size]
-                      ,chatLieu.[ten] [tenChatlieu]
-                      ,nhaCungCap.[ten] [tenNhaCC]
-                      ,sanPhamChiTiet.anh
-                      ,mauSac.[tenMau] [tenMau]
-                  FROM [dbo].[sanPhamChiTiet] 
-                  join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id
-                  join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                  join size on size.size_id = sanPhamChiTiet.size_id
-                  join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                  join nhaCungCap on nhaCungCap.nhaCC_id = sanPhamChiTiet.nhaCC_id
-              where sanPham.sanPham_id like ?
+              SELECT dbo.size.giaTri AS size, 
+                              dbo.sanPham.sanPham_id AS sanPham_id, 
+                              dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
+                              dbo.mauSac.tenMau AS mauSac, 
+                              dbo.chuongTrinhKhuyenMai.giamGia AS giamGia, 
+                              dbo.sanPham.ten AS tenSanPham, 
+                              dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                              dbo.sanPhamChiTiet.donGia AS donGia, 
+                              dbo.sanPhamChiTiet.trangThai AS trangThai,
+                              dbo.sanPhamChiTiet.moTa AS moTa
+                         FROM dbo.chuongTrinhKhuyenMai 
+                         INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+                         INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                         INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                         INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                         INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+              where sanPham.sanPham_id = ?
                 
               """;
         List<SanPhamChiTiet> listSPCT = new ArrayList<>();
@@ -202,13 +192,12 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
                         rs.getBigDecimal("donGia"),
                         rs.getString("sanPham_id"),
                         rs.getString("trangThai"),
-                        rs.getString("mota"),
+                        rs.getString("moTa"),
                         rs.getInt("size"),
-                        rs.getString("tenChatlieu"),
-                        rs.getString("tenNhaCC"),
-                        rs.getString("anh"),
-                        rs.getString("tenMau"),
-                        rs.getString("tenSanPham"));
+                        rs.getString("mauSac"),
+                        rs.getInt("giamGia"),
+                        rs.getString("tenSanPham")
+                );
                 listSPCT.add(spct);
             }
             return listSPCT;
@@ -219,29 +208,27 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
     }
 
     // hàm này thực hiện phân trang sản phẩm chi tiết
-    public List<SanPhamChiTiet> phanTrangSPCT(int tienLui, String sP_id) {
+    public List<SanPhamChiTiet> phanTrangSPCT(String sP_id, int tienLui) {
         sql = """
-             SELECT  [sPCT_id]
-                                                        	,sanPham.sanPham_id
-                                                        	,sanPham.[ten] [tenSanPham]
-                                                        	,sanPhamChiTiet.trangThai
-                                                        	,sanPhamChiTiet.moTa
-                                                              ,[soLuong]
-                                                              ,[donGia]
-                                                              ,size.[giaTri] [size]
-                                                              ,chatLieu.[ten] [tenChatlieu]
-                                                              ,nhaCungCap.[ten] [tenNhaCC]
-                                                              ,sanPhamChiTiet.anh
-                                                              ,mauSac.[tenMau] [tenMau]
-                                                          FROM [dbo].[sanPhamChiTiet] 
-                                                          join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id
-                                                          join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                                                          join size on size.size_id = sanPhamChiTiet.size_id
-                                                          join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                                                          join nhaCungCap on nhaCungCap.nhaCC_id = sanPhamChiTiet.nhaCC_id
-                                        				  where sanPham.sanPham_id like ?
-                                                      order by ngayTaoSPCT desc
-                                                                  offset ? rows  fetch next 5 rows only
+             SELECT dbo.size.giaTri AS size, 
+                    dbo.sanPham.sanPham_id AS sanPham_id, 
+                    dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
+                    dbo.mauSac.tenMau AS mauSac, 
+                    dbo.chuongTrinhKhuyenMai.giamGia AS giamGia, 
+                    dbo.sanPham.ten AS tenSanPham, 
+                    dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                    dbo.sanPhamChiTiet.donGia AS donGia, 
+                    dbo.sanPhamChiTiet.trangThai AS trangThai,
+                    dbo.sanPhamChiTiet.moTa AS moTa
+            FROM dbo.chuongTrinhKhuyenMai 
+            INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+            INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+            INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+            INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+            INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+            where sanPham.sanPham_id like ?
+            order by ngayTaoSPCT desc
+            offset ? rows  fetch next 5 rows only
                 
               """;
         List<SanPhamChiTiet> listSPCT = new ArrayList<>();
@@ -260,11 +247,10 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
                         rs.getString("trangThai"),
                         rs.getString("mota"),
                         rs.getInt("size"),
-                        rs.getString("tenChatlieu"),
-                        rs.getString("tenNhaCC"),
-                        rs.getString("anh"),
-                        rs.getString("tenMau"),
-                        rs.getString("tenSanPham"));
+                        rs.getString("mauSac"),
+                        rs.getInt("giamGia"),
+                        rs.getString("tenSanPham")
+                );
                 listSPCT.add(spct);
             }
             return listSPCT;
@@ -274,23 +260,32 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
         }
     }
 
-    @Override
     public int insert(SanPhamChiTiet entity) {
-        sql = "INSERT INTO SanPhamChiTiet (sPCT_id, soLuong, donGia, size_id, chatLieu_id, nhaCC_id, anh, mauSac_id, sanPham_id, trangThai, moTa) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        sql = """
+                INSERT INTO [dbo].[sanPhamChiTiet]
+                           ([sPCT_id]
+                           ,[soLuong]
+                           ,[donGia]
+                           ,[size_id]
+                           ,[anh]
+                           ,[mauSac_id]
+                           ,[sanPham_id]
+                           ,[trangThai]
+                           ,[moTa])
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
         try {
             con = DB_Connect.getConnection();
             ps = con.prepareCall(sql);
-            ps.setObject(1, entity.getsPCT_id());
+            ps.setObject(1, entity.getSPCT_id());
             ps.setObject(2, entity.getSoLuong());
             ps.setObject(3, entity.getDonGia());
             ps.setObject(4, entity.getSize_id());
-            ps.setObject(5, entity.getChatLieu_id());
-            ps.setObject(6, entity.getNhaCC_id());
-            ps.setObject(7, entity.getAnh());
-            ps.setObject(8, entity.getMauSac_id());
-            ps.setObject(9, entity.getSanPham_id());
-            ps.setObject(10, entity.getTrangThai());
-            ps.setObject(11, entity.getMoTa());
+            ps.setObject(5, entity.getAnh());
+            ps.setObject(6, entity.getMauSac_id());
+            ps.setObject(7, entity.getSanPham_id());
+            ps.setObject(8, entity.getTrangThai());
+            ps.setObject(9, entity.getMoTa());
             return ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -298,23 +293,31 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
         }
     }
 
-    @Override
     public int update(String key, SanPhamChiTiet entity) {
-        sql = "update sanPhamChiTiet set soLuong = ?, donGia = ?, size_id = ?, chatLieu_id = ?, nhaCC_id = ?,  anh = ?, mauSac_id = ?, sanPham_id = ?, trangThai = ?, moTa = ? where sPCT_id = ?";
+        sql = """
+              UPDATE [dbo].[sanPhamChiTiet]
+                 SET [soLuong] = ?
+                    ,[donGia] = ?
+                    ,[size_id] = ?
+                    ,[anh] = ?
+                    ,[mauSac_id] = ?
+                    ,[sanPham_id] = ?
+                    ,[trangThai] = ?
+                    ,[moTa] = ?
+               WHERE [sPCT_id] = ?
+              """;
         try {
             con = DB_Connect.getConnection();
             ps = con.prepareCall(sql);
             ps.setObject(1, entity.getSoLuong());
             ps.setObject(2, entity.getDonGia());
             ps.setObject(3, entity.getSize_id());
-            ps.setObject(4, entity.getChatLieu_id());
-            ps.setObject(5, entity.getNhaCC_id());
-            ps.setObject(6, entity.getAnh());
-            ps.setObject(7, entity.getMauSac_id());
-            ps.setObject(8, entity.getSanPham_id());
-            ps.setObject(9, entity.getTrangThai());
-            ps.setObject(10, entity.getMoTa());
-            ps.setObject(11, key);
+            ps.setObject(4, entity.getAnh());
+            ps.setObject(5, entity.getMauSac_id());
+            ps.setObject(6, entity.getSanPham_id());
+            ps.setObject(7, entity.getTrangThai());
+            ps.setObject(8, entity.getMoTa());
+            ps.setObject(9, key);
             return ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -322,7 +325,6 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
         }
     }
 
-    @Override
     public int delete(String key) {
         sql = "delete sanPhamChiTiet where sPCT_id like ? ";
         try {
@@ -335,6 +337,90 @@ public class SanPhamChiTietDAO extends QLCHBG_DAO<SanPhamChiTiet, String> {
             return 0;
         }
 
+    }
+
+    // Select SanPhamChiTiet lên BanHang_View
+    public List<SanPhamChiTiet> selectAllSPCT_BanHang() {
+        String sql = """
+                       SELECT   dbo.sanPham.sanPham_id AS maSanPham, 
+                                dbo.sanPham.ten AS tenSanPham, 
+                                dbo.size.giaTri AS size, 
+                                dbo.mauSac.tenMau AS mauSac, 
+                                dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                                dbo.sanPhamChiTiet.donGia AS donGia, 
+                                dbo.chuongTrinhKhuyenMai.giamGia AS giamGia
+                       FROM     dbo.chuongTrinhKhuyenMai 
+                       INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+                       INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                       INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                       INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                       INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                     """;
+        List<SanPhamChiTiet> listSPCT = new ArrayList<>();
+        try {
+            con = DB_Connect.getConnection();
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                SanPhamChiTiet spct = new SanPhamChiTiet();
+
+                spct.setSanPham_id(rs.getString("maSanPham"));
+                spct.setTenSanPham(rs.getString("tenSanPham"));
+                spct.setSize(rs.getInt("size"));
+                spct.setMauSac(rs.getString("mauSac"));
+                spct.setSoLuong(rs.getInt("soLuong"));
+                spct.setDonGia(rs.getBigDecimal("donGia"));
+                spct.setGiamGia(rs.getInt("giamGia"));
+
+                listSPCT.add(spct);
+            }
+            return listSPCT;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public ArrayList<SanPhamChiTiet> selectSPCT() {
+        ArrayList<SanPhamChiTiet> lst = new ArrayList<>();
+        try {
+            String sqlLocal = """
+                         SELECT     dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
+                                    dbo.sanPham.ten AS tenSanPham, 
+                                    dbo.mauSac.tenMau AS mauSac, 
+                                    dbo.size.giaTri AS size, 
+                                    dbo.sanPhamChiTiet.donGia AS donGia, 
+                                    dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                                    dbo.chuongTrinhKhuyenMai.giamGia AS giamGia
+                         FROM     dbo.chuongTrinhKhuyenMai 
+                         INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+                         INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                         INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                         INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                         INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                         where sanPham.trangThai like N'Đang bán'
+                         """;
+
+            Connection cn = DB_Connect.getConnection();
+            PreparedStatement pstm = cn.prepareStatement(sqlLocal);
+            ResultSet rsLocal = pstm.executeQuery();
+            while (rsLocal.next()) {
+                SanPhamChiTiet spct = new SanPhamChiTiet();
+
+                spct.setSPCT_id(rsLocal.getString("sPCT_id"));
+                spct.setTenSanPham(rsLocal.getString("tenSanPham"));
+                spct.setMauSac(rsLocal.getString("mauSac"));
+                spct.setSize(rsLocal.getInt("size"));
+                spct.setDonGia(rsLocal.getBigDecimal("donGia"));
+                spct.setSoLuong(rsLocal.getInt("soLuong"));
+                spct.setGiamGia(rsLocal.getInt("giamGia"));
+
+                lst.add(spct);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return lst;
     }
 
 }

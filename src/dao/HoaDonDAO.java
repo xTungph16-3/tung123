@@ -17,14 +17,13 @@ import utils.DB_Connect;
  *
  * @author Trong Phu
  */
-public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
+public class HoaDonDAO {
 
     Connection con = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
     String sql = null;
 
-    @Override
     public List<HoaDon> selectAll() {
         List<HoaDon> list1 = new ArrayList<>();
         sql = """
@@ -36,7 +35,8 @@ public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
                     ,[khachHang_id]
                     ,[thanhToan_id]
                     ,[hanDoiTra]
-                FROM [dbo].[hoaDon]""";
+                FROM [dbo].[hoaDon]
+              """;
         try {
             con = DB_Connect.getConnection();
             ps = con.prepareStatement(sql);
@@ -61,20 +61,21 @@ public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
     public List<HoaDon> selectAll2() {
         List<HoaDon> list1 = new ArrayList<>();
         sql = """
-              Select hoaDon.hoaDon_id,
-                            nhanVien.nhanVien_id, 
-                            nhanVien.hoTen, 
-                            khachHang.khachHang_id, 
-                            khachHang.hoTenKH, 
-                            tongTien,
-                            thanhToan.hinhThucThanhToan,
-                            hoaDon.ngayTaoHD,
-                            hoaDon.trangThai, 
-                            hoaDon.ghiChu, 
-                            from hoaDon
-                            join nhanVien on nhanVien.nhanVien_id = hoaDon.nhanVien_id
-                            join khachHang on khachHang.khachHang_id = hoaDon.khachHang_id
-                            join thanhToan on thanhToan.thanhToan_id = hoaDon.thanhToan_id order by ngayTaoHD
+                SELECT dbo.hoaDon.hoaDon_id, 
+                        dbo.nhanVien.nhanVien_id, 
+                        dbo.nhanVien.hoTen, 
+                        dbo.khachHang.khachHang_id, 
+                        dbo.khachHang.hoTenKH, 
+                        dbo.hoaDon.tongTien, 
+                        dbo.thanhToan.hinhThucThanhToan, 
+                        dbo.hoaDon.ngayTaoHD, 
+                        dbo.hoaDon.trangThai, 
+                        dbo.hoaDon.ghiChu
+                FROM     dbo.hoaDon 
+                INNER JOIN dbo.khachHang ON dbo.hoaDon.khachHang_id = dbo.khachHang.khachHang_id 
+                INNER JOIN dbo.nhanVien ON dbo.hoaDon.nhanVien_id = dbo.nhanVien.nhanVien_id 
+                LEFT JOIN dbo.thanhToan ON dbo.hoaDon.thanhToan_id = dbo.thanhToan.thanhToan_id 
+                order by ngayTaoHD
               """;
         try {
             con = DB_Connect.getConnection();
@@ -89,7 +90,7 @@ public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
                         rs.getString(5),
                         rs.getBigDecimal(6),
                         rs.getString(7),
-                        rs.getString(8),
+                        rs.getDate(8),
                         rs.getString(9),
                         rs.getString(10)
                 );
@@ -106,28 +107,30 @@ public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
     public List<HoaDon> phanTrangHoaDon(int tienLui) {
         ArrayList<HoaDon> lst = new ArrayList<>();
         try {
-             sql = """
-                       Select hoaDon.hoaDon_id,
-                                                    nhanVien.nhanVien_id, 
-                                                    nhanVien.hoTen, 
-                                                    khachHang.khachHang_id, 
-                                                    khachHang.hoTenKH, 
-                                                    tongTien,
-                                                    thanhToan.hinhThucThanhToan,
-                                                    hoaDon.ngayTaoHD,
-                                                    hoaDon.trangThai,
-                                                    hoaDon.ghiChu
-                                                    from hoaDon
-                                                    join nhanVien on nhanVien.nhanVien_id = hoaDon.nhanVien_id
-                                                    join khachHang on khachHang.khachHang_id = hoaDon.khachHang_id
-                                                    join thanhToan on thanhToan.thanhToan_id = hoaDon.thanhToan_id
-                   order by hoaDon.ngayTaoHD desc
-                                                     OFFSET ? ROWS
-                                                   FETCH NEXT 5 ROWS ONLY;
+            sql = """
+                        SELECT dbo.hoaDon.hoaDon_id, 
+                                dbo.nhanVien.nhanVien_id, 
+                                dbo.nhanVien.hoTen, 
+                                dbo.khachHang.khachHang_id, 
+                                dbo.khachHang.hoTenKH, 
+                                dbo.hoaDon.tongTien, 
+                                dbo.thanhToan.hinhThucThanhToan, 
+                                dbo.hoaDon.ngayTaoHD, 
+                                dbo.hoaDon.trangThai, 
+                                dbo.hoaDon.ghiChu
+                        FROM     dbo.hoaDon 
+                        INNER JOIN dbo.khachHang ON dbo.hoaDon.khachHang_id = dbo.khachHang.khachHang_id 
+                        INNER JOIN dbo.nhanVien ON dbo.hoaDon.nhanVien_id = dbo.nhanVien.nhanVien_id 
+                        LEFT JOIN dbo.thanhToan ON dbo.hoaDon.thanhToan_id = dbo.thanhToan.thanhToan_id
+                        order by hoaDon.ngayTaoHD desc
+                        OFFSET ? ROWS
+                        FETCH NEXT 5 ROWS ONLY;
                          """;
             con = DB_Connect.getConnection();
+            
             ps = con.prepareStatement(sql);
             ps.setObject(1, tienLui);
+            
             rs = ps.executeQuery();
             while (rs.next()) {
                 HoaDon hd = new HoaDon(
@@ -138,45 +141,43 @@ public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
                         rs.getString(5),
                         rs.getBigDecimal(6),
                         rs.getString(7),
-                        rs.getString(8),
+                        rs.getDate(8),
                         rs.getString(9),
-                rs.getString(10));
+                        rs.getString(10));
                 lst.add(hd);
             }
         } catch (Exception e) {
             System.out.println(e);
+            System.out.println("HoaDon List Size: " + lst.size()); // Add this line for debugging
         }
         return lst;
     }
-    
-    public List<HoaDon> timKiemPhanTrangHoaDon( String maHoaDon) {
+
+    public List<HoaDon> timKiemPhanTrangHoaDon(String maHoaDon) {
         ArrayList<HoaDon> lst = new ArrayList<>();
         try {
-             sql = """
-                       Select hoaDon.hoaDon_id,
-                                                                                                       nhanVien.nhanVien_id, 
-                                                                                                       nhanVien.hoTen, 
-                                                                                                       khachHang.khachHang_id, 
-                                                                                                       khachHang.hoTenKH, 
-                                                                                                       tongTien,
-                                                                                                       thanhToan.hinhThucThanhToan,
-                                                                                                       hoaDon.ngayTaoHD,
-                                                                                                       hoaDon.trangThai,
-                                                                                                       hoaDon.ghiChu
-                                                                                                       from hoaDon 
-                                                                                                       join nhanVien on nhanVien.nhanVien_id = hoaDon.nhanVien_id
-                                                                                                       join khachHang on khachHang.khachHang_id = hoaDon.khachHang_id
-                                                                                                       join thanhToan on thanhToan.thanhToan_id = hoaDon.thanhToan_id
-                                                   													where hoadon.hoaDon_id = ?
-                                                   
-                                                                      order by hoaDon.ngayTaoHD desc
-                                                   
-                                                                                                        OFFSET 0 ROWS
-                                                                                                      FETCH NEXT 5 ROWS ONLY;
+            sql = """
+                        SELECT dbo.hoaDon.hoaDon_id, 
+                                dbo.nhanVien.nhanVien_id, 
+                                dbo.nhanVien.hoTen, 
+                                dbo.khachHang.khachHang_id, 
+                                dbo.khachHang.hoTenKH, 
+                                dbo.hoaDon.tongTien, 
+                                dbo.thanhToan.hinhThucThanhToan, 
+                                dbo.hoaDon.ngayTaoHD, 
+                                dbo.hoaDon.trangThai, 
+                                dbo.hoaDon.ghiChu
+                        FROM     dbo.hoaDon 
+                        INNER JOIN dbo.khachHang ON dbo.hoaDon.khachHang_id = dbo.khachHang.khachHang_id 
+                        INNER JOIN dbo.nhanVien ON dbo.hoaDon.nhanVien_id = dbo.nhanVien.nhanVien_id 
+                        LEFT JOIN dbo.thanhToan ON dbo.hoaDon.thanhToan_id = dbo.thanhToan.thanhToan_id
+                        order by hoaDon.ngayTaoHD desc
+                        OFFSET 0 ROWS
+                        FETCH NEXT 5 ROWS ONLY;
                          """;
             con = DB_Connect.getConnection();
             ps = con.prepareStatement(sql);
-           
+
             ps.setObject(1, maHoaDon);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -188,9 +189,9 @@ public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
                         rs.getString(5),
                         rs.getBigDecimal(6),
                         rs.getString(7),
-                        rs.getString(8),
+                        rs.getDate(8),
                         rs.getString(9),
-                rs.getString(10));
+                        rs.getString(10));
                 lst.add(hd);
             }
         } catch (Exception e) {
@@ -198,34 +199,32 @@ public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
         }
         return lst;
     }
-    
-     public List<HoaDon> locTrangThaiPhanTrangHoaDon( String trangThai) {
+
+    public List<HoaDon> locTrangThaiPhanTrangHoaDon(String trangThai) {
         ArrayList<HoaDon> lst = new ArrayList<>();
         try {
-             sql = """
-                       Select hoaDon.hoaDon_id,
-                                                                                                       nhanVien.nhanVien_id, 
-                                                                                                       nhanVien.hoTen, 
-                                                                                                       khachHang.khachHang_id, 
-                                                                                                       khachHang.hoTenKH, 
-                                                                                                       tongTien,
-                                                                                                       thanhToan.hinhThucThanhToan,
-                                                                                                       hoaDon.ngayTaoHD,
-                                                                                                       hoaDon.trangThai,
-                                                                                                       hoaDon.ghiChu
-                                                                                                       from hoaDon 
-                                                                                                       join nhanVien on nhanVien.nhanVien_id = hoaDon.nhanVien_id
-                                                                                                       join khachHang on khachHang.khachHang_id = hoaDon.khachHang_id
-                                                                                                       join thanhToan on thanhToan.thanhToan_id = hoaDon.thanhToan_id
-                                                   													where hoadon.trangThai = ?
-                                                   
-                                                                      order by hoaDon.ngayTaoHD desc
+            sql = """
+                        SELECT dbo.hoaDon.hoaDon_id, 
+                                dbo.nhanVien.nhanVien_id, 
+                                dbo.nhanVien.hoTen, 
+                                dbo.khachHang.khachHang_id, 
+                                dbo.khachHang.hoTenKH, 
+                                dbo.hoaDon.tongTien, 
+                                dbo.thanhToan.hinhThucThanhToan, 
+                                dbo.hoaDon.ngayTaoHD, 
+                                dbo.hoaDon.trangThai, 
+                                dbo.hoaDon.ghiChu
+                        FROM     dbo.hoaDon 
+                        INNER JOIN dbo.khachHang ON dbo.hoaDon.khachHang_id = dbo.khachHang.khachHang_id 
+                        INNER JOIN dbo.nhanVien ON dbo.hoaDon.nhanVien_id = dbo.nhanVien.nhanVien_id 
+                        LEFT JOIN dbo.thanhToan ON dbo.hoaDon.thanhToan_id = dbo.thanhToan.thanhToan_id
+                        order by hoaDon.ngayTaoHD desc
                                                    
                                                                                                      
                          """;
             con = DB_Connect.getConnection();
             ps = con.prepareStatement(sql);
-           
+
             ps.setObject(1, trangThai);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -237,31 +236,15 @@ public class HoaDonDAO extends QLCHBG_DAO<HoaDon, String> {
                         rs.getString(5),
                         rs.getBigDecimal(6),
                         rs.getString(7),
-                        rs.getString(8),
+                        rs.getDate(8),
                         rs.getString(9),
-                rs.getString(10));
+                        rs.getString(10));
                 lst.add(hd);
             }
         } catch (Exception e) {
             System.out.println(e);
         }
         return lst;
-    }
-
-
-    @Override
-    public int insert(HoaDon entity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public int update(String key, HoaDon entity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public int delete(String key) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

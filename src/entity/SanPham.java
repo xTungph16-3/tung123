@@ -5,74 +5,44 @@
 package entity;
 
 import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  *
  * @author Trong Phu
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+
 public class SanPham {
-    private String ID;
-    private String tenSP;
+
+    private String sanPham_id;
+
+    private String tenSanPham;
+
     private String moTa;
+
     private String trangThai;
+
     private Date ngayTao;
 
-    public SanPham() {
-    }
+    private Brand brand;
 
-    public SanPham(String ID, String tenSP, String moTa, String trangThai, Date ngayTao) {
-        this.ID = ID;
-        this.tenSP = tenSP;
-        this.moTa = moTa;
-        this.trangThai = trangThai;
-        this.ngayTao = ngayTao;
-    }
+    private LoaiDeGiay loaiDeGiay;
 
-    public String getID() {
-        return ID;
-    }
+    private ChatLieu chatLieu;
 
-    public void setID(String ID) {
-        this.ID = ID;
-    }
+    private NhaCungCap nhaCungCap;
 
-    public String getTenSP() {
-        return tenSP;
-    }
+    private int soLuongTon;
 
-    public void setTenSP(String tenSP) {
-        this.tenSP = tenSP;
-    }
-
-    public String getMoTa() {
-        return moTa;
-    }
-
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
-    }
-
-    public String getTrangThai() {
-        return trangThai;
-    }
-
-    public void setTrangThai(String trangThai) {
-        this.trangThai = trangThai;
-    }
-
-    public Date getNgayTao() {
-        return ngayTao;
-    }
-
-    public void setNgayTao(Date ngayTao) {
-        this.ngayTao = ngayTao;
-    }
-    
-    
-    @Override
-    public String toString() {
-        return  tenSP;
-    }
-    
-   
 }

@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import utils.DB_Connect;
+import utils.jdbcHelper;
 
 /**
  *
@@ -26,135 +27,142 @@ public class KhachHangDAO extends QLCHBG_DAO<KhachHang, String> {
     ResultSet rs = null;
     String sql = null;
 
+    final String INSERT_SQL = """
+                              INSERT INTO [dbo].[khachHang]
+                                         ([khachHang_id]
+                                         ,[hoTenKH]
+                                         ,[gioiTinh]
+                                         ,[diaChi]
+                                         ,[sdt]
+                                         ,[email]
+                                         ,[ghiChu])
+                              VALUES(?, ?, ?, ?, ?, ?, ?)
+                              """;
+
+    final String UPDATE_SQL = """
+                              UPDATE [dbo].[khachHang]
+                                 SET [hoTenKH] = ?
+                                    ,[gioiTinh] = ?
+                                    ,[diaChi] = ?
+                                    ,[sdt] = ?
+                                    ,[email] = ?
+                                    ,[ghiChu] = ?
+                               WHERE [khachHang_id] = ?
+                              """;
+
+    final String DELETE_SQL = """
+                              
+                              """;
+
+    final String SELECT_ALL_SQL = """
+                                  SELECT [khachHang].[khachHang_id],
+                                    			[hoTenKH],
+                                    			[gioiTinh],
+                                    			[diaChi],
+                                    			[sdt],
+                                                        [email],
+                                                        [khachHang].[ghiChu],
+                                                        COUNT(CASE WHEN hoaDon.trangThai = N'Hoàn thành' THEN 1 END) AS soLanMua,
+                                                        [khachHang].[ngayTaoKH]
+                                    FROM [dbo].[khachHang]
+                                         LEFT JOIN hoaDon ON hoaDon.khachHang_id = khachHang.khachHang_id
+                                    GROUP BY  [khachHang].[khachHang_id],
+                                                            [hoTenKH],
+                                                            [gioiTinh],
+                                                            [diaChi],
+                                                            [sdt],
+                                                            [email],
+                                                            [khachHang].[ghiChu],
+                                                            [khachHang].[ngayTaoKH];
+                                  """;
+
+    final String SELECT_BY_ID_SQL = """
+                                    SELECT [khachHang_id]
+                                          ,[hoTenKH]
+                                          ,[gioiTinh]
+                                          ,[diaChi]
+                                          ,[sdt]
+                                          ,[email]
+                                          ,[ghiChu]
+                                          ,[ngayTaoKH]
+                                      FROM [dbo].[khachHang]
+                                    WHERE [khachHang_id] = ?
+                                    """;
+
     @Override
     public List<KhachHang> selectAll() {
-        sql = """
-             SELECT 
-                        [khachHang].[khachHang_id],
-                        [hoTenKH],
-                        [gioiTinh],
-                        [diaChi],
-                        [sdt],
-                        [email],
-                        [khachHang].[ghiChu],
-                        COUNT(CASE WHEN hoaDon.trangThai = N'Hoàn thành' THEN 1 END) AS soLanMua,
-                        [khachHang].[ngayTaoKH]
-                    FROM 
-                        [dbo].[khachHang]
-                    LEFT JOIN 
-                        hoaDon ON hoaDon.khachHang_id = khachHang.khachHang_id
-              
-                    GROUP BY 
-                        [khachHang].[khachHang_id],
-                        [hoTenKH],
-                        [gioiTinh],
-                        [diaChi],
-                        [sdt],
-                        [email],
-                         [khachHang].[ghiChu],
-                        [khachHang].[ngayTaoKH];
-         """;
-        List<KhachHang> listKH = new ArrayList<>();
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                listKH.add(new KhachHang(rs.getString("khachHang_id"),
-                        rs.getString("hoTenKH"),
-                        rs.getBoolean("gioiTinh"),
-                        rs.getString("diaChi"),
-                        rs.getString("sdt"),
-                        rs.getString("email"),
-                        rs.getString("ghiChu"),
-                        rs.getDate("ngayTaoKH"),
-                        rs.getInt("soLanMua")));
+        return selectBySQL(SELECT_ALL_SQL);
+    }
 
-            }
+    @Override
+    public void insert(KhachHang entity) {
 
-            return listKH;
-        } catch (Exception e) {
-            e.printStackTrace();
+        int gioiTinhBit = entity.getgioitinh().equalsIgnoreCase("Nam") ? 1 : 0;
+
+        jdbcHelper.update(INSERT_SQL,
+                entity.getKhachHang_id(),
+                entity.getHoTenHK(),
+                gioiTinhBit,
+                entity.getDiaChi(),
+                entity.getSdt(),
+                entity.getEmail(),
+                entity.getGhiChu());
+
+    }
+
+    @Override
+    public void update(KhachHang entity) {
+
+        int gioiTinhBit = entity.getgioitinh().equalsIgnoreCase("Nam") ? 1 : 0;
+
+        jdbcHelper.update(UPDATE_SQL,
+                entity.getHoTenHK(),
+                gioiTinhBit,
+                entity.getDiaChi(),
+                entity.getSdt(),
+                entity.getEmail(),
+                entity.getGhiChu(),
+                entity.getKhachHang_id());
+    }
+
+    @Override
+    public void delete(String id) {
+
+    }
+
+    @Override
+    public KhachHang selectById(String id) {
+        List<KhachHang> list = selectBySQL(SELECT_BY_ID_SQL, id);
+        if (list.isEmpty()) {
             return null;
         }
+        return list.get(0);
     }
 
     @Override
-    public int insert(KhachHang entity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public int update(String key, KhachHang entity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public int delete(String key) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    public Integer addNH(KhachHang n) {
-        Integer row = null;
-        String sql = """
-                     INSERT INTO [dbo].[khachHang]
-                                ([khachHang_id]
-                                ,[hoTenKH]
-                                ,[gioiTinh]
-                                ,[diaChi]
-                                ,[sdt]
-                                ,[email]
-                                ,[ghiChu])
-                          VALUES(?,?,?,?,?,?,?)
-                                """;
-
+    public List<KhachHang> selectBySQL(String sql, Object... args) {
+        List<KhachHang> list = new ArrayList<>();
         try {
-            Connection cn = DB_Connect.getConnection();
-            PreparedStatement pstm = cn.prepareStatement(sql);
-            pstm.setObject(1, n.getIdKH());
-            pstm.setObject(2, n.getHoTen());
-            pstm.setObject(3, n.isGioiTinh());
-            pstm.setObject(4, n.getDiaChi());
-            pstm.setObject(5, n.getSdt());
-            pstm.setObject(6, n.getEmail());
-            pstm.setObject(7, n.getGhiChu());
+            ResultSet resultSet = jdbcHelper.query(sql, args);
+            while (resultSet.next()) {
 
-            row = pstm.executeUpdate();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+                KhachHang entity = new KhachHang();
+
+                entity.setKhachHang_id(resultSet.getString("khachHang_id"));
+                entity.setHoTenHK(resultSet.getString("hoTenKH"));
+                entity.setGioiTinh(resultSet.getBoolean("gioiTinh"));
+                entity.setDiaChi(resultSet.getString("diaChi"));
+                entity.setSdt(resultSet.getString("sdt"));
+                entity.setEmail(resultSet.getString("email"));
+                entity.setGhiChu(resultSet.getString("ghiChu"));
+                entity.setNgayTao(resultSet.getDate("ngayTaoKH"));
+
+                list.add(entity);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return row;
-    }
-
-    public String update(KhachHang nv, String id) {
-        Connection conn = DB_Connect.getConnection();
-        String update = """
-                        UPDATE [dbo].[khachHang]
-                            SET [khachHang_id] = ?
-                               ,[hoTenKH] = ?
-                               ,[gioiTinh] = ?
-                               ,[diaChi] = ?
-                               ,[sdt] = ?
-                               ,[email] = ?
-                          WHERE khachHang_id like ?""";
-        try {
-            PreparedStatement ps = conn.prepareStatement(update);
-
-            // ps.setObject(1, nv.getNhanVien_id());
-            ps.setObject(1, nv.getIdKH());
-            ps.setObject(2, nv.getHoTen());
-            ps.setObject(3, nv.isGioiTinh());
-            ps.setObject(4, nv.getDiaChi());
-            ps.setObject(5, nv.getSdt());
-            ps.setObject(6, nv.getEmail());
-
-            ps.setObject(7, id);
-            ps.executeUpdate();
-            return "Sửa thành công";
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return "Sủa không thành công";
-        }
+        return list;
     }
 
     public List<KhachHang> timkiem(String id) {
@@ -164,33 +172,27 @@ public class KhachHangDAO extends QLCHBG_DAO<KhachHang, String> {
             con = DB_Connect.getConnection();
 
             String query = """
-                            SELECT 
-                                                                                            [khachHang].[khachHang_id],
-                                                                                            [hoTenKH],
-                                                                                            [gioiTinh],
-                                                                                            [diaChi],
-                                                                                            [sdt],
-                                                                                            [email],
-                                                                                            [khachHang].[ghiChu],
-                                                                                            COUNT(CASE WHEN hoaDon.trangThai = N'Hoàn thành' THEN 1 END) AS soLanMua,
-                                                                                            [khachHang].[ngayTaoKH]
-                                                                                        FROM 
-                                                                                            [dbo].[khachHang]  
-                                                                                        LEFT JOIN 
-                                                                                            hoaDon ON hoaDon.khachHang_id = khachHang.khachHang_id
-                                                                                   WHERE hoTenKH LIKE N'%' + ? + N'%' or gioiTinh LIKE N'%' + ? + N'%'  or sdt LIKE N'%' + ? + N'%' or email LIKE N'%' + ? + N'%'  
-                                                                                        GROUP BY 
-                                                                                            [khachHang].[khachHang_id],
-                                                                                            [hoTenKH],
-                                                                                            [gioiTinh],
-                                                                                            [diaChi],
-                                                                                            [sdt],
-                                                                                            [email],
-                                                                                             [khachHang].[ghiChu],
-                                                                                            [khachHang].[ngayTaoKH]
-                                                          
-                     
-                           
+                            SELECT [khachHang].[khachHang_id],
+                                                hoTenKH],
+                                                [gioiTinh],
+                                                [diaChi],
+                                                [sdt],
+                                                [email],
+                                                [khachHang].[ghiChu],
+                                                COUNT(CASE WHEN hoaDon.trangThai = N'Hoàn thành' THEN 1 END) AS soLanMua,
+                                                [khachHang].[ngayTaoKH]
+                            FROM [dbo].[khachHang]  
+                            LEFT JOIN hoaDon ON hoaDon.khachHang_id = khachHang.khachHang_id
+                            WHERE hoTenKH LIKE N'%' + ? + N'%' or gioiTinh LIKE N'%' + ? + N'%'  or sdt LIKE N'%' + ? + N'%' or email LIKE N'%' + ? + N'%'  
+                            GROUP BY [khachHang].[khachHang_id],
+                                                  [hoTenKH],
+                                                  [gioiTinh],
+                                                  [diaChi],
+                                                  [sdt],
+                                                  [email],
+                                                  [khachHang].[ghiChu],
+                                                  [khachHang].[ngayTaoKH]
+
                            """;
 
             ps = con.prepareCall(query);
@@ -213,9 +215,9 @@ public class KhachHangDAO extends QLCHBG_DAO<KhachHang, String> {
             }
 
             return listNV;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            //System.out.println("Lỗi" + ex.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+//            System.out.println("Lỗi" + e.toString());
         }
 
         return null;
@@ -223,32 +225,27 @@ public class KhachHangDAO extends QLCHBG_DAO<KhachHang, String> {
 
     public List<KhachHang> phanTrangKH(int tienLui) {
         sql = """
-          
-                                                                              SELECT
-                                                                                  [khachHang].[khachHang_id],
-                                                                                  [hoTenKH],
-                                                                                  [gioiTinh],
-                                                                                  [diaChi],
-                                                                                  [sdt],
-                                                                                  [email],
-                                                                                  [khachHang].[ghiChu],
-                                                                                  COUNT(CASE WHEN hoaDon.trangThai = N'Hoàn thành' THEN 1 END) AS soLanMua,
-                                                                                  [khachHang].[ngayTaoKH]
-                                                                              FROM
-                                                                                  [dbo].[khachHang]
-                                                                              LEFT JOIN
-                                                                                  hoaDon ON hoaDon.khachHang_id = khachHang.khachHang_id
-                                                                              GROUP BY
-                                                                                  [khachHang].[khachHang_id],
-                                                                                  [hoTenKH],
-                                                                                  [gioiTinh],
-                                                                                  [diaChi],
-                                                                                  [sdt],
-                                                                                  [email],
-                                                                                  [khachHang].[ghiChu],
-                                                                                  [khachHang].[ngayTaoKH] order by khachHang.ngayTaoKH DESC
-                                                                  offset ? rows  fetch next 5 rows only
-                
+                SELECT [khachHang].[khachHang_id],
+                                    [hoTenKH],
+                                    [gioiTinh],
+                                    [diaChi],
+                                    [sdt],
+                                    [email],
+                                    [khachHang].[ghiChu],
+                                    COUNT(CASE WHEN hoaDon.trangThai = N'Hoàn thành' THEN 1 END) AS soLanMua,
+                                    [khachHang].[ngayTaoKH]
+                FROM [dbo].[khachHang]
+                LEFT JOIN hoaDon ON hoaDon.khachHang_id = khachHang.khachHang_id
+                GROUP BY [khachHang].[khachHang_id],
+                         [hoTenKH],
+                         [gioiTinh],
+                         [diaChi],
+                         [sdt],
+                         [email],
+                         [khachHang].[ghiChu],
+                         [khachHang].[ngayTaoKH] order by khachHang.ngayTaoKH DESC
+                         offset ? rows  fetch next 5 rows only
+              
               """;
         List<KhachHang> listKH = new ArrayList<>();
         try {

@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import view.BanHang_View;
 import view.HoaDon_View;
 import view.KhachHang_View;
-import view.KhuyenMai_View;
+import view.KhuyenMai_Views;
 import view.NhanVien_View;
 import view.SanPham_View;
 import view.ThongKe_View;
@@ -79,7 +79,7 @@ public class XMenu {
                     setView();
                     break;
                 case "KhuyenMai":
-                    node = new KhuyenMai_View();
+                    node = new KhuyenMai_Views();
                     setView();
                     break;
                 case "ThongKe":

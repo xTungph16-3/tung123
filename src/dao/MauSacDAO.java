@@ -11,109 +11,135 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import utils.DB_Connect;
+import utils.jdbcHelper;
 
 /**
  *
  * @author Trong Phu
  */
-public class MauSacDAO extends QLCHBG_DAO<MauSac, String> {
+public class MauSacDAO extends QLCHBG_DAO<MauSac, Integer> {
 
-    Connection con = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    String sql = null;
+    private Connection con = null;
+    private PreparedStatement ps = null;
+    private ResultSet rs = null;
+    private String sql = null;
+
+    final String INSERT_SQL = """
+                              INSERT INTO [dbo].[mauSac]
+                                         ([tenMau]
+                                         ,[moTa])
+                                   VALUES(?, ?)
+                              """;
+
+    final String UPADTE_SQL = """
+                              UPDATE [dbo].[mauSac]
+                                 SET [tenMau] = ?
+                                    ,[moTa] = ?
+                               WHERE mauSac_id = ?
+                              """;
+
+    final String DELETE_SQL = """
+                              
+                              """;
+
+    final String SELECT_ALL_SQL = """
+                                  SELECT [mauSac_id]
+                                        ,[tenMau]
+                                        ,[moTa]
+                                    FROM [dbo].[mauSac]
+                                  """;
+
+    final String SELECT_BY_TEN_MAU_SQL = """
+                                    SELECT [mauSac_id]
+                                          ,[tenMau]
+                                          ,[moTa]
+                                      FROM [dbo].[mauSac]
+                                      WHERE tenMau LIKE ?
+                                    """;
+
+    final String SELECT_MAU_SAC_ID_BY_NAME_SQL = """
+                                               SELECT [mauSac_id] 
+                                               FROM [dbo].[mauSac]
+                                               WHERE tenMau = ?
+                                               """;
+
+    final String SELECT_BY_ID_SQL = """
+                                    SELECT [mauSac_id]
+                                          ,[tenMau]
+                                          ,[moTa]
+                                      FROM [dbo].[mauSac]
+                                      WHERE mauSac_id = ?
+                                    """;
 
     @Override
-    public int insert(MauSac entity) {
-        sql = "insert into MauSac(tenmau,mota) values (?,?)";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getTenMau());
-            ps.setObject(2, entity.getMoTa());
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
+    public void insert(MauSac entity) {
+        jdbcHelper.update(INSERT_SQL, entity.getTenMauSac(), entity.getMoTa());
     }
 
     @Override
-    public int update(String key, MauSac entity) {
-        sql = "Update MauSac set tenmau = ?,  mota = ? where mauSac_id = ?";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getTenMau());
-            ps.setObject(2, entity.getMoTa());
-            ps.setObject(3, key);
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
+    public void update(MauSac entity) {
+        jdbcHelper.update(UPADTE_SQL, entity.getTenMauSac(), entity.getMoTa(), entity.getMauSac_id());
     }
 
     @Override
-    public int delete(String key) {
-        sql = "delete MauSac where mausac_id = ?";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, key);
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            //e.printStackTrace();
-            return 0;
-        }
+    public void delete(Integer id) {
+
     }
 
     @Override
     public List<MauSac> selectAll() {
-        sql = "select mausac_id, tenmau ,mota from MauSac order by ngayTao DESC";
-        List<MauSac> lst = new ArrayList<>();
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                MauSac ms = new MauSac(
-                        rs.getInt(1), rs.getString(2),
-                        rs.getString(3)
-                );
-                lst.add(ms);
-            }
-            return lst;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        return selectBySQL(SELECT_ALL_SQL);
     }
 
-    //phần code này ảnh hướng đến thêm spct -ntp
     public MauSac selectByTenMau(String tenMau) {
-        sql = "select mausac_id, tenmau ,mota from MauSac where tenMau like ?";
-        List<MauSac> lst = new ArrayList<>();
+        List<MauSac> list = selectBySQL(SELECT_BY_TEN_MAU_SQL, tenMau);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
+
+    }
+
+    public Integer selectMauSacIdByName(String name) {
         try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, tenMau);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                MauSac ms = new MauSac(
-                        rs.getInt(1), rs.getString(2),
-                        rs.getString(3)
-                );
-                lst.add(ms);
+            ResultSet rs = jdbcHelper.query(SELECT_MAU_SAC_ID_BY_NAME_SQL, name);
+            if (rs.next()) {
+                return rs.getInt("mauSac_id");
             }
-            if (!lst.isEmpty()) {
-                return lst.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null; // hoặc có thể ném ra một ngoại lệ tùy thuộc vào cách bạn muốn xử lý lỗi
+    }
+
+    @Override
+    public MauSac selectById(Integer id) {
+        List<MauSac> list = selectBySQL(SELECT_BY_ID_SQL, id);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    @Override
+    public List<MauSac> selectBySQL(String sql, Object... args) {
+        List<MauSac> list = new ArrayList<>();
+        try {
+            ResultSet resultSet = jdbcHelper.query(sql, args);
+            while (resultSet.next()) {
+                MauSac entity = new MauSac();
+
+                entity.setMauSac_id(resultSet.getInt("mauSac_id"));
+                entity.setTenMauSac(resultSet.getString("tenMau"));
+                entity.setMoTa(resultSet.getString("moTa"));
+
+                list.add(entity);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException();
         }
-        return null;
+        return list;
     }
+
 }

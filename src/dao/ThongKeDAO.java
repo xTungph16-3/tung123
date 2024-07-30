@@ -84,41 +84,38 @@ public class ThongKeDAO {
     /// hàmnày trả về 1 danh sách để fill lên bảng thống kê sản phẩm chi tiết
     public List<SanPhamChiTiet> bangThongKeSPCT() {
         sql = """
-             SELECT  sanPhamChiTiet.[sPCT_id]
-                                                                          	,sanPham.sanPham_id
-                                                                          	,sanPham.[ten] [tenSanPham]
-                                                                          	,sanPhamChiTiet.trangThai
-                                                                          	,sanPhamChiTiet.moTa
-                                                                                ,sanPhamChiTiet.[soLuong]
-                                                                                ,size.[giaTri] [size]
-                                                                                ,chatLieu.[ten] [tenChatlieu]
-                                                                                ,nhaCungCap.[ten] [tenNhaCC]
-                                                                                ,sanPhamChiTiet.anh
-                                                                                ,mauSac.[tenMau] [tenMau]
-                                                          					  ,[donGia]
-                                                          					  ,SUM(hoaDonChiTiet.soLuong) as [soLuongBan]
-                                                          					  ,SUM(hoaDonChiTiet.thanhTien) as doanhThu
-                                                                            FROM [quanLyCuaHangGiay].[dbo].[sanPhamChiTiet] 
-                                                                            join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id
-                                                                            join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                                                                            join size on size.size_id = sanPhamChiTiet.size_id
-                                                                            join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                                                                            join nhaCungCap on nhaCungCap.nhaCC_id = sanPhamChiTiet.nhaCC_id
-                                                          				  join hoaDonChiTiet on hoaDonChiTiet.sPCT_id = sanPhamChiTiet.sPCT_id where trangThaiHDCT = N'Hoàn thành'
-                                                          				  group by sanPhamChiTiet.[sPCT_id]
-                                                                          	,sanPham.sanPham_id
-                                                                          	,sanPham.[ten]
-                                                                          	,sanPhamChiTiet.trangThai
-                                                                          	,sanPhamChiTiet.moTa
-                                                                                ,sanPhamChiTiet.[soLuong]
-                                                                                ,[donGia]
-                                                                                ,size.[giaTri] 
-                                                                                ,chatLieu.[ten] 
-                                                                                ,nhaCungCap.[ten] 
-                                                                                ,sanPhamChiTiet.anh
-                                                                                ,mauSac.[tenMau]
+            SELECT  sanPhamChiTiet.[sPCT_id]
+                     ,sanPham.sanPham_id
+                     ,sanPham.[ten] [tenSanPham]
+                     ,sanPhamChiTiet.trangThai
+                     ,sanPhamChiTiet.moTa
+                     ,sanPhamChiTiet.[soLuong]
+                     ,size.[giaTri] [size]
+                     ,sanPhamChiTiet.anh
+                     ,mauSac.[tenMau] [tenMau]
+                     ,[donGia]
+                     ,SUM(hoaDonChiTiet.soLuong) as [soLuongBan]
+                     ,SUM(hoaDonChiTiet.thanhTien) as doanhThu
+            FROM [quanLyCuaHangGiay].[dbo].[sanPhamChiTiet] 
+            join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id
+            join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
+            join size on size.size_id = sanPhamChiTiet.size_id
+            join hoaDonChiTiet on hoaDonChiTiet.sPCT_id = sanPhamChiTiet.sPCT_id 
+            where trangThaiHDCT = N'Hoàn thành'
+            group by sanPhamChiTiet.[sPCT_id]
+                     ,sanPham.sanPham_id
+                     ,sanPham.[ten]
+                     ,sanPhamChiTiet.trangThai
+                     ,sanPhamChiTiet.moTa
+                     ,sanPhamChiTiet.[soLuong]
+                     ,[donGia]
+                     ,size.[giaTri] 
+                     ,sanPhamChiTiet.anh
+                     ,mauSac.[tenMau]
               """;
+        
         List<SanPhamChiTiet> listSPCT = new ArrayList<>();
+        
         try {
             con = DB_Connect.getConnection();
             ps = con.prepareStatement(sql);
@@ -132,8 +129,6 @@ public class ThongKeDAO {
                         rs.getString("trangThai"),
                         rs.getString("moTa"),
                         rs.getInt("size"),
-                        rs.getString("tenChatLieu"),
-                        rs.getString("tenNhaCC"),
                         rs.getString("tenMau"),
                         rs.getString("tenSanPham"),
                         rs.getBigDecimal("doanhThu"),
@@ -218,7 +213,7 @@ public class ThongKeDAO {
             rs = ps.executeQuery();
             while(rs.next()){
                 HoaDon hd = new HoaDon();
-                hd.setNgayTao(rs.getString("Ngay"));
+                hd.setNgayTao(rs.getDate("Ngay"));
                 hd.setTongTien(rs.getBigDecimal("TongDoanhThu"));
                 hd.setTongSoHD(rs.getInt("tongSoHoaDon"));
                 lst.add(hd);

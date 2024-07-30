@@ -9,11 +9,20 @@ import java.util.List;
 /**
  *
  * @author Trong Phu
+ * @param <Entity> :
+ * @param <KeyType> :
  */
-public abstract class  QLCHBG_DAO<E,K> {
-    
-    abstract public int insert(E entity);
-    abstract public int update(K key,E entity);
-    abstract public int delete(K key);
-    abstract public List<E> selectAll();
+public abstract class QLCHBG_DAO<EntityType, KeyType> {
+
+    public abstract void insert(EntityType entity);
+
+    public abstract void update(EntityType entity);
+
+    public abstract void delete(KeyType id);
+
+    public abstract List<EntityType> selectAll();
+
+    public abstract EntityType selectById(KeyType id);
+
+    public abstract List<EntityType> selectBySQL(String sql, Object... args);
 }

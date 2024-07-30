@@ -11,105 +11,128 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import utils.DB_Connect;
+import utils.jdbcHelper;
 
 /**
  *
  * @author Trong Phu
  */
-public class ChatLieuDAO extends QLCHBG_DAO<ChatLieu, String> {
+public class ChatLieuDAO extends QLCHBG_DAO<ChatLieu, Integer> {
 
-    Connection con = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    String sql = null;
+    private Connection con = null;
+    private PreparedStatement ps = null;
+    private ResultSet rs = null;
+    private String sql = null;
+
+    final String INSERT_SQL = """
+                              INSERT INTO [dbo].[chatLieu]
+                                         ([ten]
+                                         ,[nguonGoc]
+                                         ,[moTa]
+                                   VALUES (?, ?, ?)
+                              """;
+
+    final String UPDATE_SQL = """
+                              UPDATE [dbo].[chatLieu]
+                                 SET [ten] = ?
+                                    ,[nguonGoc] = ?
+                                    ,[moTa] = ?
+                               WHERE chatLieu_id =?
+                              """;
+
+    final String DELETE_SQL = """
+                              DELETE FROM chatLieu
+                              WHERE chatLieu_id = ?
+                              """;
+
+    final String SELECT_ALL_SQL = """
+                                  SELECT * FROM chatLieu
+                                  """;
+
+    final String SELECT_BY_TENCL_SQL = """
+                                    SELECT * FROM chatLieu
+                                    WHERE ten LIKE ?
+                                    """;
+
+    final String SELECT_CHATLIEU_ID_BY_NAME_SQL = """
+                                               SELECT [chatLieu_id]
+                                                 FROM [dbo].[chatLieu]
+                                                 WHERE ten = ?
+                                               """;
+
+    final String SELECT_BY_ID_SQL = """
+                                    SELECT * FROM chatLieu
+                                    WHERE chatLieu_id = ?
+                                    """;
+
+    @Override
+    public void insert(ChatLieu entity) {
+        jdbcHelper.update(INSERT_SQL, entity.getTenChatLieu(), entity.getNguonGoc(), entity.getMota());
+    }
+
+    @Override
+    public void update(ChatLieu entity) {
+        jdbcHelper.update(UPDATE_SQL, entity.getTenChatLieu(), entity.getNguonGoc(), entity.getMota(), entity.getChatLieu_id());
+    }
+
+    @Override
+    public void delete(Integer id) {
+        jdbcHelper.update(DELETE_SQL, id);
+    }
 
     @Override
     public List<ChatLieu> selectAll() {
-        List<ChatLieu> lst = new ArrayList<>();
-        sql = "select chatLieu_id, ten, nguongoc,mota from chatLieu order by ngayTao DESC";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                ChatLieu cl = new ChatLieu(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
-                lst.add(cl);
+        return selectBySQL(SELECT_ALL_SQL);
+    }
 
-            }
-            return lst;
-        } catch (Exception e) {
-            e.printStackTrace();
+    @Override
+    public ChatLieu selectById(Integer id) {
+        List<ChatLieu> list = selectBySQL(SELECT_BY_ID_SQL, id);
+        if (list.isEmpty()) {
             return null;
         }
+        return list.get(0);
     }
 
-    @Override
-    public int insert(ChatLieu entity) {
-        sql = "insert into ChatLieu(ten,nguongoc,mota) values (?,?,?)";
+    public Integer selectChatLieuIdByName(String name) {
         try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getTenCL());
-            ps.setObject(2, entity.getNguonGoc());
-            ps.setObject(3, entity.getMota());
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public int update(String key, ChatLieu entity) {
-        sql = "Update chatLieu set ten = ?, nguonGoc = ?, mota =? where chatLieu_id = ?";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getTenCL());
-            ps.setObject(2, entity.getNguonGoc());
-            ps.setObject(3, entity.getMota());
-            ps.setObject(4, key);
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public int delete(String key) {
-        sql = "delete ChatLieu where chatLieu_id = ? ";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, key);
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            //e.printStackTrace();
-            return 0;
-        }
-    }
-
-    //phần code này ảnh hưởng đến thêm spct - ntp
-    public ChatLieu selectByTenChatLieu(String tenChatLieu) {
-        List<ChatLieu> lst = new ArrayList<>();
-        sql = "select chatLieu_id, ten, nguongoc,mota from chatLieu where ten like ?";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, tenChatLieu);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                ChatLieu cl = new ChatLieu(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
-                lst.add(cl);
-            }
-            if (!lst.isEmpty()) {
-                return lst.get(0);
+            ResultSet rs = jdbcHelper.query(SELECT_CHATLIEU_ID_BY_NAME_SQL, name);
+            if (rs.next()) {
+                return rs.getInt("chatLieu_id");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
         return null;
     }
+
+    @Override
+    public List<ChatLieu> selectBySQL(String sql, Object... args) {
+        List<ChatLieu> list = new ArrayList<>();
+        try {
+            ResultSet resultSet = jdbcHelper.query(sql, args);
+            while (resultSet.next()) {
+                ChatLieu entity = new ChatLieu();
+
+                entity.setChatLieu_id(resultSet.getInt("chatLieu_id"));
+                entity.setTenChatLieu(resultSet.getString("ten"));
+                entity.setNguonGoc(resultSet.getString("nguonGoc"));
+                entity.setMota(resultSet.getString("moTa"));
+
+                list.add(entity);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+        return list;
+    }
+
+    public ChatLieu selectByTenCL(String tenCL) {
+        List<ChatLieu> list = selectBySQL(SELECT_BY_TENCL_SQL, tenCL);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
+    }
+
 }

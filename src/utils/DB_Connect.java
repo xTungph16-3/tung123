@@ -17,7 +17,7 @@ public class DB_Connect {
     private static final String PASSWORD = "123456789"; // Đổi mật khẩu theo SQL trên máy mỗi người
     private static final String SERVER = "localhost";
     private static final String PORT = "1433";
-    private static final String DATABASE_NAME = "quanLyCuaHangGiay2";
+    private static final String DATABASE_NAME = "quanLyCuaHangGiay";
     private static final boolean USING_SSL = true; // Nếu máy báo lỗi SSL thì có thể đổi giá trị là true hoặc false
     private static String CONNECT_STRING;
 

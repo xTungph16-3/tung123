@@ -320,18 +320,18 @@ public class DangNhapJDialog extends javax.swing.JDialog {
     private void dangNhap() {
         String id = txtTenDangNhap.getText();
 
-        if (daoNV.selectByID(id) == null) {
+        if (daoNV.selectById(id) == null) {
             lblBaoLoiTK.setText("Tài khoản không tồn tại!");
             txtTenDangNhap.requestFocus();
-        } else if (!txtMatKhau.getText().equals(daoNV.selectByID(id).getMatkhau())) {
+        } else if (!txtMatKhau.getText().equals(daoNV.selectById(id).getMatkhau())) {
             lblBaoLoiTK.setText("");
             lblBaoLoiMK.setText("Sai mật khẩu!");
             txtMatKhau.requestFocus();
         } else {
             lblBaoLoiTK.setText("");
             lblBaoLoiMK.setText("");
-            XLogin.user = daoNV.selectByID(id);
-            if (daoNV.selectByID(id).getTrangThai().trim().equals("Hoạt động")) {
+            XLogin.user = daoNV.selectById(id);
+            if (daoNV.selectById(id).getTrangThai().trim().equals("Hoạt động")) {
                 JOptionPane.showMessageDialog(this, "Đăng nhập thành công");
                 this.dispose();
             } else {

@@ -11,102 +11,98 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import utils.DB_Connect;
+import utils.jdbcHelper;
 
 /**
  *
  * @author Trong Phu
  */
-public class SizeDAO extends QLCHBG_DAO<Size, String> {
+public class SizeDAO extends QLCHBG_DAO<Size, Integer> {
 
-    Connection con = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    String sql = null;
+    final String INSERT_SQL = """
+                              INSERT INTO size(giaTri)
+                              VALUES (?)
+                              """;
+
+    final String UPADTE_SQL = """
+                              UPDATE size
+                              SET giaTri = ?
+                              WHERE size_id = ?
+                              """;
+
+    final String DELETE_SQL = """
+                                DELETE FROM size
+                                WHERE size_id = ?
+                              """;
+
+    final String SELECT_ALL_SQL = """
+                                  SELECT * FROM size
+                                  """;
+
+    final String SELECT_BY_GIATRI_SQL = """
+                                    SELECT * FROM size
+                                    WHERE  giaTri = ?
+                                    """;
+
+    final String SELECT_BY_ID_SQL = """
+                                    SELECT * FROM size
+                                    WHERE size_id = ?
+                                    """;
+
+    @Override
+    public void insert(Size entity) {
+        jdbcHelper.update(INSERT_SQL, entity.getGiatri());
+    }
+
+    @Override
+    public void update(Size entity) {
+        jdbcHelper.update(UPADTE_SQL, entity.getGiatri(), entity.getSize_id());
+    }
+
+    @Override
+    public void delete(Integer id) {
+        jdbcHelper.update(DELETE_SQL, id);
+    }
 
     @Override
     public List<Size> selectAll() {
-        sql = "Select Size_id,giatri from size order by ngayTao DESC";
-        List<Size> lst = new ArrayList<>();
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                Size sz = new Size(rs.getInt(1),
-                        rs.getInt(2));
-                lst.add(sz);
-            }
-            return lst;
-        } catch (Exception e) {
-            e.printStackTrace();
+        return selectBySQL(SELECT_ALL_SQL);
+    }
+
+    public Size selectByGiaTri(Integer giaTri) {
+        List<Size> list = selectBySQL(SELECT_BY_GIATRI_SQL, giaTri);
+        if (list.isEmpty()) {
             return null;
         }
+        return list.get(0);
     }
 
     @Override
-    public int insert(Size entity) {
-        sql = "insert into Size(giatri) values (?) ";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getGiatri());
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public int update(String key, Size entity) {
-        sql = "Update Size set giatri = ? where size_id like ?";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getGiatri());
-            ps.setObject(2, key);
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public int delete(String key) {
-        sql = " delete Size where size_id =?";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, key);
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            //e.printStackTrace();
-            return 0;
-        }
-    }
-
-    //phần code này ảnh hướng đến thêm spct -ntp
-    public Size selectByGiaTri(int size) {
-        sql = "Select Size_id,giatri from size where giaTri = ? ";
-        List<Size> lst = new ArrayList<>();
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, size);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                Size sz = new Size(rs.getInt(1),
-                        rs.getInt(2));
-                lst.add(sz);
-            }
-            if (!lst.isEmpty()) {
-                return lst.get(0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Size selectById(Integer id) {
+        List<Size> list = selectBySQL(SELECT_BY_ID_SQL, id);
+        if (list.isEmpty()) {
             return null;
         }
-        return null;
+        return list.get(0);
     }
+
+    @Override
+    public List<Size> selectBySQL(String sql, Object... args) {
+        List<Size> list = new ArrayList<>();
+        try {
+            ResultSet resultSet = jdbcHelper.query(sql, args);
+            while (resultSet.next()) {
+                Size entity = new Size();
+
+                entity.setSize_id(resultSet.getInt("size_id"));
+                entity.setGiatri(resultSet.getInt("giaTri"));
+
+                list.add(entity);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+        return list;
+    }
+
 }

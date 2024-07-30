@@ -16,117 +16,183 @@ import utils.DB_Connect;
  *
  * @author Trong Phu
  */
-public class HoaDonChiTietDAO extends QLCHBG_DAO<HoaDonChiTiet, String> {
+public class HoaDonChiTietDAO {
 
     Connection con = null;
     PreparedStatement ps = null;
     ResultSet rs = null;
     String sql = null;
 
-    @Override
+    // hàm này có chức năng thêm 1 hdct mới
+    public int insertHoaDonCT(HoaDonChiTiet hDCT) {
+
+        sql = """
+                   INSERT INTO [dbo].[hoaDonChiTiet]
+                              ([hDCT_id]
+                              ,[hoaDon_id]
+                              ,[sPCT_id]
+                              ,[soLuong]
+                              ,[giaBan]
+                              ,[thanhTien]
+                              ,[trangThaiHDCT])
+                        VALUES ( ?, ?, ?, ?, ?, ?, ?)
+              """;
+        try {
+            con = DB_Connect.getConnection();
+
+            ps = con.prepareCall(sql);
+            ps.setObject(1, hDCT.getHDCT_id());
+            ps.setObject(2, hDCT.getHoaDon_id());
+            ps.setObject(3, hDCT.getSPCT_id());
+            ps.setObject(4, hDCT.getSoLuong());
+            ps.setObject(5, hDCT.getGiaBan());
+            ps.setObject(6, hDCT.getThanhTien());
+            ps.setObject(7, hDCT.getTrangThaiHDCT());
+
+            return ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     public List<HoaDonChiTiet> selectAll() {
         List<HoaDonChiTiet> list2 = new ArrayList<>();
-        sql = "select * from hoaDonChiTiet order by hoaDon_id";
+        sql = """
+              SELECT [hDCT_id]
+                    ,[hoaDon_id]
+                    ,[sPCT_id]
+                    ,[soLuong]
+                    ,[giaBan]
+                    ,[thanhTien]
+                    ,[trangThaiHDCT]
+                FROM [dbo].[hoaDonChiTiet]
+                order by hoaDon_id
+              """;
         try {
             con = DB_Connect.getConnection();
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
             while (rs.next()) {
-                HoaDonChiTiet hdct = new HoaDonChiTiet(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getBigDecimal(5), rs.getBigDecimal(6), rs.getString(7));
+                HoaDonChiTiet hdct = new HoaDonChiTiet(
+                        rs.getString("hDCT_id"),
+                        rs.getString("hoaDon_id"),
+                        rs.getString("sPCT_id"),
+                        rs.getInt("soLuong"),
+                        rs.getBigDecimal("giaBan"),
+                        rs.getBigDecimal("thanhTien"),
+                        rs.getString("trangThaiHDCT")
+                );
                 list2.add(hdct);
             }
             return list2;
         } catch (Exception e) {
             e.fillInStackTrace();
         }
-//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         return null;
     }
 
     public List<HoaDonChiTiet> selectHDCTByHoaDon_id(String hoaDon_id) {
         List<HoaDonChiTiet> list2 = new ArrayList<>();
-        sql = "select * from hoaDonChiTiet where hoaDon_id like ? and trangThaiHDCT like N'Hoàn thành'";
+        sql = """
+              SELECT    [hDCT_id]
+                        ,[hoaDon_id]
+                        ,[sPCT_id]
+                        ,[soLuong]
+                        ,[giaBan]
+                        ,[thanhTien]
+                        ,[trangThaiHDCT]
+              FROM [dbo].[hoaDonChiTiet]
+              where hoaDon_id like ? and trangThaiHDCT like N'Hoàn thành'
+              """;
+
         try {
             con = DB_Connect.getConnection();
             ps = con.prepareStatement(sql);
             ps.setObject(1, hoaDon_id);
             rs = ps.executeQuery();
             while (rs.next()) {
-                HoaDonChiTiet hdct = new HoaDonChiTiet(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getBigDecimal(5), rs.getBigDecimal(6), rs.getString(7));
+                HoaDonChiTiet hdct = new HoaDonChiTiet(
+                        rs.getString("hDCT_id"),
+                        rs.getString("hoaDon_id"),
+                        rs.getString("sPCT_id"),
+                        rs.getInt("soLuong"),
+                        rs.getBigDecimal("giaBan"),
+                        rs.getBigDecimal("thanhTien"),
+                        rs.getString("trangThaiHDCT")
+                );
                 list2.add(hdct);
             }
             return list2;
         } catch (Exception e) {
             e.fillInStackTrace();
         }
-//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         return null;
     }
 
-    @Override
-    public int insert(HoaDonChiTiet entity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int updateTrangThaiHDCTByHoaDonId(String hoaDon_id, String trangThai) {
+        String sql = """
+                        UPDATE [dbo].[hoaDonChiTiet]
+                        SET [trangThaiHDCT] = ?
+                        WHERE hoaDon_id = ?
+                     """;
+        try (Connection con = DB_Connect.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, trangThai);
+            ps.setString(2, hoaDon_id);
+            return ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
-    @Override
-    public int update(String key, HoaDonChiTiet entity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public int delete(String key) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
     public ArrayList<HoaDonChiTiet> selectHDCT(String id) {
         ArrayList<HoaDonChiTiet> lst = new ArrayList<>();
         try {
-             sql = """
-                         select hoaDonChiTiet.hDCT_id,
-                        hoaDon.hoaDon_id,
-                        sanPhamChiTiet.sPCT_id,
-                        sanPham.ten,
-                        hoaDonChiTiet.soLuong,
-                        hoaDonChiTiet.giaBan,
-                        hoaDonChiTiet.thanhTien,
-                        size.giaTri,
-                        chatLieu.ten as tenChatLieu,
-                        nhaCungCap.ten as tenNhaCC,
-                        mauSac.tenMau,
-                        hoaDonChiTiet.trangThaiHDCT
-                        from hoaDonChiTiet
-                                                                           join hoaDon on hoaDon.hoaDon_id = hoaDonChiTiet.hoaDon_id
-                                                                           join sanPhamChiTiet on sanPhamChiTiet.sPCT_id = hoaDonChiTiet.sPCT_id
-                                                                           join sanPham  on sanPhamChiTiet.sanPham_id = sanPham.sanPham_id
-                                                                           join size on size.size_id = sanPhamChiTiet.size_id
-                                                                           join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                                                                           join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                                                                           join nhaCungCap on nhaCungCap.nhaCC_id = sanPhamChiTiet.nhaCC_id 
-                                                  where hoaDonChiTiet.hoaDon_id like ? and (trangThaiHDCT like N'Hoàn thành' or trangThaiHDCT like N'Chờ thanh toán' or trangThaiHDCT like N'Đã huỷ')
+            String sqlLocal = """
+                        SELECT	dbo.hoaDonChiTiet.hDCT_id AS hDCT_id,
+                        		dbo.hoaDon.hoaDon_id AS hoaDon_id,
+                        		dbo.sanPhamChiTiet.sPCT_id AS sPCT_id ,
+                        		dbo.sanPham.ten AS tenSanPham, 
+                        		dbo.size.giaTri AS size, 
+                        		dbo.mauSac.tenMau AS mauSac, 
+                        		dbo.hoaDonChiTiet.soLuong AS soLuong, 
+                        		dbo.hoaDonChiTiet.giaBan AS giaBan, 
+                        		dbo.hoaDonChiTiet.thanhTien AS thanhTien,
+                        		dbo.hoaDonChiTiet.trangThaiHDCT AS trangThaiHDCT
+                        FROM     dbo.hoaDon 
+                        INNER JOIN dbo.hoaDonChiTiet ON dbo.hoaDon.hoaDon_id = dbo.hoaDonChiTiet.hoaDon_id 
+                        INNER JOIN dbo.sanPhamChiTiet ON dbo.hoaDonChiTiet.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                        INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                        INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                        INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                        where hoaDonChiTiet.hoaDon_id like ? 
                          """;
-             con = DB_Connect.getConnection();
-             ps = con.prepareStatement(sql);
-            ps.setObject(1, id);
-             rs = ps.executeQuery();
+            Connection cn = DB_Connect.getConnection();
+            PreparedStatement pstm = cn.prepareStatement(sqlLocal);
+            pstm.setObject(1, id);
+            ResultSet rs = pstm.executeQuery();
             while (rs.next()) {
-                HoaDonChiTiet hdct = new HoaDonChiTiet();
-                hdct.setMaHDCT(rs.getString("hDCT_id"));
-                hdct.setMaSanPham(rs.getString("sPCT_id"));
-                hdct.setTenSanPham(rs.getString("ten"));
-                hdct.setSize(rs.getInt("giaTri"));
-                hdct.setChatLieu(rs.getString("tenChatLieu"));
-                hdct.setNhaCC(rs.getString("tenNhaCC"));
-                hdct.setMauSac(rs.getString("tenMau"));
-                hdct.setGiaBan(rs.getBigDecimal("giaBan"));
-                hdct.setSoLuong(rs.getInt("soLuong"));
-                hdct.setThanhTien(rs.getBigDecimal("thanhTien"));
-                hdct.setTrangThaiHDCT(rs.getString("trangThaiHDCT"));
-                lst.add(hdct);
+                HoaDonChiTiet hoaDonChiTiet = new HoaDonChiTiet();
+
+                hoaDonChiTiet.setHDCT_id(rs.getString("hDCT_id"));
+                hoaDonChiTiet.setHoaDon_id(rs.getString("hoaDon_id"));
+                hoaDonChiTiet.setSPCT_id(rs.getString("sPCT_id"));
+                hoaDonChiTiet.setTenSanPham(rs.getString("tenSanPham"));
+                hoaDonChiTiet.setSize(rs.getInt("size"));
+                hoaDonChiTiet.setMauSac(rs.getString("mauSac"));
+                hoaDonChiTiet.setSoLuong(rs.getInt("soLuong"));
+                hoaDonChiTiet.setGiaBan(rs.getBigDecimal("giaBan"));
+                hoaDonChiTiet.setThanhTien(rs.getBigDecimal("thanhTien"));
+                hoaDonChiTiet.setTrangThaiHDCT(rs.getString("trangThaiHDCT"));
+
+                lst.add(hoaDonChiTiet);
             }
+
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(e);
         }
         return lst;
     }
-
 }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import utils.DB_Connect;
+import utils.jdbcHelper;
 
 /**
  *
@@ -19,107 +20,115 @@ import utils.DB_Connect;
  */
 public class KhuyenMaiDAO extends QLCHBG_DAO<KhuyenMai, Integer> {
 
-    Connection con = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    String sql = null;
+    private Connection con = null;
+    private PreparedStatement ps = null;
+    private ResultSet rs = null;
+    private String sql = null;
+
+    final String INSERT_SQL = """
+                              INSERT INTO [dbo].[chuongTrinhKhuyenMai]
+                                         ([ten]
+                                         ,[moTa]
+                                         ,[ngayBD]
+                                         ,[ngayKT]
+                                         ,[giamGia]
+                                         ,[trangThai])
+                               VALUES (?, ?, ?, ?, ?, ?)
+                              """;
+
+    final String UPADTE_SQL = """
+                              UPDATE [dbo].[chuongTrinhKhuyenMai]
+                                 SET [ten] = ?
+                                    ,[moTa] = ?
+                                    ,[ngayBD] = ?
+                                    ,[ngayKT] = ?
+                                    ,[giamGia] = ?
+                                    ,[trangThai] = ?
+                               WHERE chuongTrinh_id = ?
+                              """;
+
+    final String DELETE_SQL = """
+                              UPDATE [dbo].[chuongTrinhKhuyenMai]
+                              SET [trangThai] = 'Tạm ngừng'
+                              WHERE chuongTrinh_id = ?
+                              """;
+
+    final String SELECT_ALL_SQL = """
+                                  SELECT [chuongTrinh_id]
+                                        ,[ten]
+                                        ,[moTa]
+                                        ,[ngayBD]
+                                        ,[ngayKT]
+                                        ,[giamGia]
+                                        ,[trangThai]
+                                    FROM [dbo].[chuongTrinhKhuyenMai]
+                                  """;
+
+    final String SELECT_BY_ID_SQL = """
+                                    SELECT [chuongTrinh_id]
+                                          ,[ten]
+                                          ,[moTa]
+                                          ,[ngayBD]
+                                          ,[ngayKT]
+                                          ,[giamGia]
+                                          ,[trangThai]
+                                    FROM [dbo].[chuongTrinhKhuyenMai]
+                                    WHERE chuongTrinh_id = ?
+                                    """;
+
+    @Override
+    public void insert(KhuyenMai entity) {
+        jdbcHelper.update(INSERT_SQL, entity.getTen(), entity.getMoTa(), entity.getNgayBD(),
+                entity.getNgayKT(), entity.getGiamGia(), entity.getTrangThai());
+    }
+
+    @Override
+    public void update(KhuyenMai entity) {
+        jdbcHelper.update(UPADTE_SQL, entity.getTen(), entity.getMoTa(), entity.getNgayBD(),
+                entity.getNgayKT(), entity.getGiamGia(), entity.getTrangThai(), entity.getChuongTrinh_id());
+    }
+
+    @Override
+    public void delete(Integer id) {
+        jdbcHelper.update(DELETE_SQL, id);
+    }
 
     @Override
     public List<KhuyenMai> selectAll() {
-        List<KhuyenMai> list_KM = new ArrayList<>();
-        sql = """
-              SELECT chuongTrinh_id, ten, moTa, ngayBD, ngayKT, giamGia
-              FROM chuongTrinhKhuyenMai
-              """;
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                int chuongTrinh_id = rs.getInt(1);
-                String ten = rs.getString(2);
-                String moTa = rs.getString(3);
-                Date ngayBD = rs.getDate(4);
-                Date ngayKT = rs.getDate(5);
-                double giamGia = rs.getDouble(6);
+        return selectBySQL(SELECT_ALL_SQL);
+    }
 
-                KhuyenMai km = new KhuyenMai(chuongTrinh_id, ten, moTa, ngayBD, ngayKT, chuongTrinh_id);
-                list_KM.add(km);
-            }
-            return list_KM;
-        } catch (Exception e) {
-            e.printStackTrace();
+    @Override
+    public KhuyenMai selectById(Integer id) {
+        List<KhuyenMai> list = selectBySQL(SELECT_BY_ID_SQL, id);
+        if (list.isEmpty()) {
             return null;
         }
+        return list.get(0);
     }
 
     @Override
-    public int insert(KhuyenMai entity) {
-        sql = """
-              INSERT INTO chuongTrinhKhuyenMai(ten, moTa, ngayBD, ngayKT, giamGia)
-              VALUES(?, ?, ?, ?, ?)
-              """;
+    public List<KhuyenMai> selectBySQL(String sql, Object... args) {
+        List<KhuyenMai> list = new ArrayList<>();
         try {
-            con = DB_Connect.getConnection();
+            ResultSet resultSet = jdbcHelper.query(sql, args);
+            while (resultSet.next()) {
+                KhuyenMai entity = new KhuyenMai();
 
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getTen());
-            ps.setObject(2, entity.getMoTa());
-            ps.setObject(3, entity.getNgayBD());
-            ps.setObject(4, entity.getNgayKT());
-            ps.setObject(5, entity.getGiamGia());
+                entity.setChuongTrinh_id(resultSet.getInt("chuongTrinh_id"));
+                entity.setTen(resultSet.getString("ten"));
+                entity.setMoTa(resultSet.getString("moTa"));
+                entity.setNgayBD(resultSet.getDate("ngayBD"));
+                entity.setNgayKT(resultSet.getDate("ngayKT"));
+                entity.setGiamGia(resultSet.getDouble("giamGia"));
+                entity.setTrangThai(resultSet.getString("trangThai"));
 
-            return ps.executeUpdate();
-
+                list.add(entity);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
         }
-    }
-
-    @Override
-    public int update(Integer key, KhuyenMai entity) {
-        sql = """
-              UPDATE chuongTrinhKhuyenMai
-              SET ten= ?, moTa = ?, ngayBD = ?, ngayKT = ?, giamGia = ?
-              WHERE chuongTrinh_id = ?
-              """;
-        try {
-            con = DB_Connect.getConnection();
-            
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getTen());
-            ps.setObject(2, entity.getMoTa());
-            ps.setObject(3, entity.getNgayBD());
-            ps.setObject(4, entity.getNgayKT());
-            ps.setObject(5, entity.getGiamGia());
-            ps.setObject(6, key);
-            
-            return ps.executeUpdate();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    @Override
-    public int delete(Integer key) {
-        sql = """
-              DELETE chuongTrinhKhuyenMai
-              WHERE chuongTrinh_id = ?
-              """;
-        try {
-            con = DB_Connect.getConnection();
-            
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, key);
-            
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
+        return list;
     }
 
 }

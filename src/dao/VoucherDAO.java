@@ -12,125 +12,159 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import utils.DB_Connect;
+import utils.jdbcHelper;
 
 /**
  *
  * @author luuvi
  */
-public class VoucherDAO extends QLCHBG_DAO<Voucher, Integer>{
+public class VoucherDAO extends QLCHBG_DAO<Voucher, Integer> {
 
-    Connection con = null;
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    String sql = null;
-    
+    private Connection con = null;
+    private PreparedStatement ps = null;
+    private ResultSet rs = null;
+    private String sql = null;
+
+    final String INSERT_SQL = """
+                              INSERT INTO [dbo].[khuyenMaiVoucher]
+                                         ([tenVoucher]
+                                         ,[moTa]
+                                         ,[ngayBD]
+                                         ,[ngayKT]
+                                         ,[giamGia]
+                                         ,[giaToiDa]
+                                         ,[donToiThieu]
+                                         ,[trangThai])
+                                   VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)
+                              """;
+
+    final String UPADTE_SQL = """
+                              UPDATE [dbo].[khuyenMaiVoucher]
+                                 SET [tenVoucher] = ?
+                                    ,[moTa] = ?
+                                    ,[ngayBD] = ?
+                                    ,[ngayKT] = ?
+                                    ,[giamGia] = ?
+                                    ,[giaToiDa] = ?
+                                    ,[donToiThieu] = ?
+                                    ,[trangThai] = ?
+                               WHERE voucher_id = ?
+                              """;
+
+    final String DELETE_SQL = """
+                                UPDATE [dbo].[khuyenMaiVoucher]
+                                SET [trangThai] = 'Tạm dừng'
+                                WHERE voucher_id = ?
+                              """;
+
+    final String SELECT_ALL_SQL = """
+                                  SELECT [voucher_id]
+                                        ,[tenVoucher]
+                                        ,[moTa]
+                                        ,[ngayBD]
+                                        ,[ngayKT]
+                                        ,[giamGia]
+                                        ,[giaToiDa]
+                                        ,[donToiThieu]
+                                        ,[trangThai]
+                                    FROM [dbo].[khuyenMaiVoucher]
+                                  """;
+
+    final String SELECT_BY_ID_SQL = """
+                                    SELECT [voucher_id]
+                                          ,[tenVoucher]
+                                          ,[moTa]
+                                          ,[ngayBD]
+                                          ,[ngayKT]
+                                          ,[giamGia]
+                                          ,[giaToiDa]
+                                          ,[donToiThieu]
+                                          ,[trangThai]
+                                      FROM [dbo].[khuyenMaiVoucher]
+                                    WHERE voucher_id = ?
+                                    """;
+
+    final String SELECT_GIAM_GIA_BY_TEN_SQL = """
+                                    SELECT [giamGia]
+                                      FROM [dbo].[khuyenMaiVoucher]
+                                    WHERE tenVoucher = ? AND trangThai = N'Hoạt động'
+                                    """;
+
     @Override
-    public int insert(Voucher entity) {
-        sql = """
-              INSERT INTO khuyenMaiVoucher(tenVoucher, moTa, ngayBD, ngayKT, giamGia, giaToiDa, donToiThieu)
-              VALUES(?, ?, ?, ?, ?, ?, ?)
-              """;
-        
-        try {
-            con = DB_Connect.getConnection();
-            
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getTen());
-            ps.setObject(2, entity.getMoTa());
-            ps.setObject(3, entity.getNgayBD());
-            ps.setObject(4, entity.getNgayKT());
-            ps.setObject(5, entity.getGiamGia());
-            ps.setObject(6, entity.getGiaToiDa());
-            ps.setObject(7, entity.getDonToiThieu());
-            
-            return ps.executeUpdate();                      
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-        
+    public void insert(Voucher entity) {
+        jdbcHelper.update(INSERT_SQL, entity.getTen(), entity.getMoTa(), entity.getNgayBD(), entity.getNgayKT(),
+                entity.getGiamGia(), entity.getGiaToiDa(), entity.getDonToiThieu(), entity.getTrangThai());
     }
 
     @Override
-    public int update(Integer key, Voucher entity) {
-        sql = """
-              UPDATE khuyenMaiVoucher
-              SET tenVoucher = ?, moTa = ?, ngayBD = ?, ngayKT = ?, giamGia = ?, giaToiDa = ?, donToiThieu = ?
-              WHERE voucher_id = ?
-              """;
-        
-        try {
-            con = DB_Connect.getConnection();
-            
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, entity.getTen());
-            ps.setObject(2, entity.getMoTa());
-            ps.setObject(3, entity.getNgayBD());
-            ps.setObject(4, entity.getNgayKT());
-            ps.setObject(5, entity.getGiamGia());
-            ps.setObject(6, entity.getGiaToiDa());
-            ps.setObject(7, entity.getDonToiThieu());            
-            ps.setObject(8, entity.getVoucher_id());
-            
-            return ps.executeUpdate();            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-        
+    public void update(Voucher entity) {
+        jdbcHelper.update(UPADTE_SQL, entity.getTen(), entity.getMoTa(), entity.getNgayBD(), entity.getNgayKT(),
+                entity.getGiamGia(), entity.getGiaToiDa(), entity.getDonToiThieu(), entity.getTrangThai(), entity.getVoucher_id());
     }
 
     @Override
-    public int delete(Integer key) {
-        sql = """
-              DELETE khuyenMaiVoucher
-              WHERE voucher_id = ?
-              """;
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, key);
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            //e.printStackTrace();
-            return 0;
-        }
+    public void delete(Integer id) {
+        jdbcHelper.update(DELETE_SQL, id);
     }
 
     @Override
     public List<Voucher> selectAll() {
-        List<Voucher> list_Voucher = new ArrayList<>();
-        
-        sql = """
-              SELECT voucher_id, tenVoucher, moTa, ngayBD, ngayKT, giamGia, giaToiDa, donToiThieu 
-              FROM khuyenMaiVoucher
-              """;
-        
-        try {
-            con = DB_Connect.getConnection();
-            
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            
-            while (rs.next()) {                
-                int voucher_id = rs.getInt(1);
-                String tenVoucher = rs.getString(2);
-                String moTa = rs.getString(3);
-                Date ngayBD = rs.getDate(4);
-                Date ngayKT = rs.getDate(5);
-                double giamGia = rs.getDouble(6);
-                double giaToiDa = rs.getDouble(7);
-                double donToiThieu = rs.getDouble(8);
-                
-                Voucher voucher = new Voucher(voucher_id, tenVoucher, moTa, ngayBD, ngayKT, giamGia, giaToiDa, donToiThieu);
-                list_Voucher.add(voucher);
-            }
-            
-            return list_Voucher;
-        } catch (Exception e) {
-            e.printStackTrace();
+        return selectBySQL(SELECT_ALL_SQL);
+    }
+
+    @Override
+    public Voucher selectById(Integer id) {
+        List<Voucher> list = selectBySQL(SELECT_BY_ID_SQL, id);
+        if (list.isEmpty()) {
             return null;
         }
+        return list.get(0);
     }
-    
+
+    public int selectGiamGiaByTen(String name) {
+        int giamGia = 0; // Mặc định là 0 nếu không tìm thấy giảm giá
+
+        try (Connection cn = DB_Connect.getConnection(); PreparedStatement pstm = cn.prepareStatement(SELECT_GIAM_GIA_BY_TEN_SQL)) {
+            // Thiết lập tham số cho câu lệnh SQL
+            pstm.setString(1, name);
+
+            // Thực thi câu lệnh và nhận kết quả
+            try (ResultSet rs = pstm.executeQuery()) {
+                if (rs.next()) {
+                    giamGia = rs.getInt("giamGia");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return giamGia;
+    }
+
+    @Override
+    public List<Voucher> selectBySQL(String sql, Object... args) {
+        List<Voucher> list = new ArrayList<>();
+        try {
+            ResultSet resultSet = jdbcHelper.query(sql, args);
+            while (resultSet.next()) {
+                Voucher entity = new Voucher();
+
+                entity.setVoucher_id(resultSet.getInt("voucher_id"));
+                entity.setTen(resultSet.getString("tenVoucher"));
+                entity.setMoTa(resultSet.getString("moTa"));
+                entity.setNgayBD(resultSet.getDate("ngayBD"));
+                entity.setNgayKT(resultSet.getDate("ngayKT"));
+                entity.setGiamGia(resultSet.getDouble("giamGia"));
+                entity.setGiaToiDa(resultSet.getDouble("giaToiDa"));
+                entity.setDonToiThieu(resultSet.getDouble("donToiThieu"));
+                entity.setTrangThai(resultSet.getString("trangThai"));
+
+                list.add(entity);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+        return list;
+    }
+
 }

@@ -4,53 +4,39 @@
  */
 package entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 /**
  *
  * @author Trong Phu
  */
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+
 public class Size {
-    private int id;
-    private int giatri;
 
-    public Size() {
-    }
+    private Integer size_id;
+    
+    private Integer giatri;
 
-    public Size(int giatri) {
+    public Size(Integer giatri) {
         this.giatri = giatri;
     }
     
-    
-
-    public Size(int id, int giatri) {
-        this.id = id;
-        this.giatri = giatri;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getGiatri() {
-        return giatri;
-    }
-
-    public void setGiatri(int giatri) {
-        this.giatri = giatri;
-    }
-
-    @Override
-    public String toString() {
-        return giatri+"";
-    }
-    
-    public Object [] toDataRow(){
-        return new Object[] {
-            this.id, this.giatri
+    public Object[] DataSize(){
+        return new Object[]{
+            size_id,
+            giatri
         };
     }
-    
 }

@@ -4,61 +4,43 @@
  */
 package entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 /**
  *
  * @author Trong Phu
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+
 public class MauSac {
 
-    private int id;
-    private String tenMau;
+    private Integer mauSac_id;
+    
+    private String tenMauSac;
+    
     private String moTa;
 
-    public MauSac() {
-    }
-
-    public MauSac(int id, String tenMau, String moTa) {
-        this.id = id;
-        this.tenMau = tenMau;
-        this.moTa = moTa;
-    }
-
     public MauSac(String tenMau, String moTa) {
-        this.tenMau = tenMau;
+        this.tenMauSac = tenMau;
         this.moTa = moTa;
     }
 
-    public int getId() {
-        return id;
+    public Object[] DataMauSac(){
+        return new Object[]{
+            mauSac_id,
+            tenMauSac,
+            moTa
+        };
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTenMau() {
-        return tenMau;
-    }
-
-    public void setTenMau(String tenMau) {
-        this.tenMau = tenMau;
-    }
-
-    public String getMoTa() {
-        return moTa;
-    }
-
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
-    }
-
-    @Override
-    public String toString() {
-        return tenMau;
-    }
-
-    public Object[] toDaTaRowMS() {
-        return new Object[]{this.id, this.tenMau, this.moTa};
-    }
-
+    
 }

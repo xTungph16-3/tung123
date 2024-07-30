@@ -27,22 +27,34 @@ import utils.XLogin;
 public class BanHangDAO {
 
     public ArrayList<HoaDon> selectHDCho() {
+
         ArrayList<HoaDon> lst = new ArrayList<>();
-      String  nhanVien_id = XLogin.user.getNhanVien_id();
-        
+
+        String nhanVien_id = XLogin.user.getNhanVien_id();
+
         try {
-            String sqlLocal = "select * from hoaDon where trangThai like N'Chờ thanh toán' and nhanVien_id like '" + nhanVien_id + "' order by ngayTaoHD desc";
+            String sqlLocal = """
+                                select * from hoaDon
+                                where trangThai = N'Chờ thanh toán' and nhanVien_id = ?
+                                order by ngayTaoHD desc
+                              """;
+
             Connection cn = DB_Connect.getConnection();
             PreparedStatement pstm = cn.prepareStatement(sqlLocal);
+            pstm.setString(1, nhanVien_id);
             ResultSet rs = pstm.executeQuery();
+
             while (rs.next()) {
+
                 HoaDon hd = new HoaDon();
+
                 hd.setMaHoaDon(rs.getString("hoaDon_id"));
-                hd.setNgayTao(rs.getString("ngayTaoHD"));
+                hd.setNgayTao(rs.getDate("ngayTaoHD"));
                 hd.setTongTien(rs.getBigDecimal("tongTien"));
                 hd.setMaNhanVien(rs.getString("nhanVien_id"));
                 hd.setMaKhachHang(rs.getString("khachHang_id"));
                 hd.setTrangThai(rs.getString("trangThai"));
+
                 lst.add(hd);
             }
         } catch (Exception e) {
@@ -55,27 +67,23 @@ public class BanHangDAO {
         ArrayList<HoaDonChiTiet> lst = new ArrayList<>();
         try {
             String sqlLocal = """
-                         select hoaDonChiTiet.hDCT_id,
-                        hoaDon.hoaDon_id,
-                        sanPhamChiTiet.sPCT_id,
-                        sanPham.ten,
-                        hoaDonChiTiet.soLuong,
-                        hoaDonChiTiet.giaBan,
-                        hoaDonChiTiet.thanhTien,
-                        size.giaTri,
-                        chatLieu.ten as tenChatLieu,
-                        nhaCungCap.ten as tenNhaCC,
-                        mauSac.tenMau,
-                        hoaDonChiTiet.trangThaiHDCT
-                        from hoaDonChiTiet
-                                                                           join hoaDon on hoaDon.hoaDon_id = hoaDonChiTiet.hoaDon_id
-                                                                           join sanPhamChiTiet on sanPhamChiTiet.sPCT_id = hoaDonChiTiet.sPCT_id
-                                                                           join sanPham  on sanPhamChiTiet.sanPham_id = sanPham.sanPham_id
-                                                                           join size on size.size_id = sanPhamChiTiet.size_id
-                                                                           join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                                                                           join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                                                                           join nhaCungCap on nhaCungCap.nhaCC_id = sanPhamChiTiet.nhaCC_id 
-                                                  where hoaDonChiTiet.hoaDon_id like ? and trangThaiHDCT like N'Chờ thanh toán'
+                        SELECT	dbo.hoaDonChiTiet.hDCT_id,
+                        		dbo.hoaDon.hoaDon_id,
+                        		dbo.sanPhamChiTiet.sPCT_id AS sPCT_id ,
+                        		dbo.sanPham.ten AS tenSanPham, 
+                        		dbo.size.giaTri AS size, 
+                        		dbo.mauSac.tenMau AS mauSac, 
+                        		dbo.hoaDonChiTiet.soLuong, 
+                        		dbo.hoaDonChiTiet.giaBan, 
+                        		dbo.hoaDonChiTiet.thanhTien,
+                        		dbo.hoaDonChiTiet.trangThaiHDCT
+                        FROM     dbo.hoaDon 
+                        INNER JOIN dbo.hoaDonChiTiet ON dbo.hoaDon.hoaDon_id = dbo.hoaDonChiTiet.hoaDon_id 
+                        INNER JOIN dbo.sanPhamChiTiet ON dbo.hoaDonChiTiet.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                        INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                        INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                        INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                        where hoaDonChiTiet.hoaDon_id like ? and trangThaiHDCT like N'Chờ thanh toán'
                          """;
             Connection cn = DB_Connect.getConnection();
             PreparedStatement pstm = cn.prepareStatement(sqlLocal);
@@ -83,18 +91,19 @@ public class BanHangDAO {
             ResultSet rs = pstm.executeQuery();
             while (rs.next()) {
                 HoaDonChiTiet hdct = new HoaDonChiTiet();
-                hdct.setMaSanPham(rs.getString("sPCT_id"));
-                hdct.setTenSanPham(rs.getString("ten"));
-                hdct.setSize(rs.getInt("giaTri"));
-                hdct.setChatLieu(rs.getString("tenChatLieu"));
-                hdct.setNhaCC(rs.getString("tenNhaCC"));
-                hdct.setMauSac(rs.getString("tenMau"));
+
+                hdct.setSPCT_id(rs.getString("sPCT_id"));
+                hdct.setTenSanPham(rs.getString("tenSanPham"));
+                hdct.setSize(rs.getInt("size"));
+                hdct.setMauSac(rs.getString("mauSac"));
                 hdct.setGiaBan(rs.getBigDecimal("giaBan"));
                 hdct.setSoLuong(rs.getInt("soLuong"));
                 hdct.setThanhTien(rs.getBigDecimal("thanhTien"));
                 hdct.setTrangThaiHDCT(rs.getString("trangThaiHDCT"));
+
                 lst.add(hdct);
             }
+
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -105,27 +114,24 @@ public class BanHangDAO {
         List<HoaDonChiTiet> lst = new ArrayList<>();
         try {
             String sqlLocal = """
-                         select hoaDonChiTiet.hDCT_id,
-                        hoaDon.hoaDon_id,
-                        sanPhamChiTiet.sPCT_id,
-                        sanPham.ten,
-                        hoaDonChiTiet.soLuong,
-                        hoaDonChiTiet.giaBan,
-                        hoaDonChiTiet.thanhTien,
-                        size.giaTri,
-                        chatLieu.ten as tenChatLieu,
-                        nhaCungCap.ten as tenNhaCC,
-                        mauSac.tenMau,
-                        hoaDonChiTiet.trangThaiHDCT
-                                                                           from hoaDonChiTiet
-                                                                           join hoaDon on hoaDon.hoaDon_id = hoaDonChiTiet.hoaDon_id
-                                                                           join sanPhamChiTiet on sanPhamChiTiet.sPCT_id = hoaDonChiTiet.sPCT_id
-                                                                           join sanPham  on sanPhamChiTiet.sanPham_id = sanPham.sanPham_id
-                                                                           join size on size.size_id = sanPhamChiTiet.size_id
-                                                                           join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                                                                           join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                                                                           join nhaCungCap on nhaCungCap.nhaCC_id = sanPhamChiTiet.nhaCC_id 
-                                                  where hoaDonChiTiet.hoaDon_id like ? and sanPhamChiTiet.sPCT_id like ? and trangThaiHDCT like N'Chờ thanh toán'
+                        SELECT          dbo.hoaDonChiTiet.hDCT_id AS hDCT_id,
+                        		dbo.hoaDon.hoaDon_id AS hoaDon_id,
+                        		dbo.sanPhamChiTiet.sPCT_id sPCT_id ,
+                        		dbo.sanPham.ten AS tenSanPham, 
+                        		dbo.size.giaTri AS size, 
+                        		dbo.mauSac.tenMau AS mauSac, 
+                        		dbo.hoaDonChiTiet.soLuong AS soLuong, 
+                        		dbo.hoaDonChiTiet.giaBan AS giaBan, 
+                        		dbo.hoaDonChiTiet.thanhTien AS thanhTien,
+                        		dbo.hoaDonChiTiet.trangThaiHDCT AS trangThaiHDCT
+                        FROM     dbo.hoaDon 
+                        INNER JOIN dbo.hoaDonChiTiet ON dbo.hoaDon.hoaDon_id = dbo.hoaDonChiTiet.hoaDon_id 
+                        INNER JOIN dbo.sanPhamChiTiet ON dbo.hoaDonChiTiet.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                        INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                        INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                        INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                        where hoaDonChiTiet.hoaDon_id like ? and sanPhamChiTiet.sPCT_id like ? 
+                              and trangThaiHDCT like N'Chờ thanh toán'
                          """;
             Connection cn = DB_Connect.getConnection();
             PreparedStatement pstm = cn.prepareStatement(sqlLocal);
@@ -134,17 +140,17 @@ public class BanHangDAO {
             ResultSet rs = pstm.executeQuery();
             while (rs.next()) {
                 HoaDonChiTiet hdct = new HoaDonChiTiet();
-                hdct.setMaHDCT(rs.getString("hDCT_id"));
-                hdct.setMaSanPham(rs.getString("sPCT_id"));
-                hdct.setTenSanPham(rs.getString("ten"));
-                hdct.setSize(rs.getInt("giaTri"));
-                hdct.setChatLieu(rs.getString("tenChatLieu"));
-                hdct.setNhaCC(rs.getString("tenNhaCC"));
-                hdct.setMauSac(rs.getString("tenMau"));
+
+                hdct.setHDCT_id(rs.getString("hDCT_id"));
+                hdct.setSPCT_id(rs.getString("sPCT_id"));
+                hdct.setTenSanPham(rs.getString("tenSanPham"));
+                hdct.setSize(rs.getInt("size"));
+                hdct.setMauSac(rs.getString("mauSac"));
                 hdct.setGiaBan(rs.getBigDecimal("giaBan"));
                 hdct.setSoLuong(rs.getInt("soLuong"));
                 hdct.setThanhTien(rs.getBigDecimal("thanhTien"));
                 hdct.setTrangThaiHDCT(rs.getString("trangThaiHDCT"));
+
                 lst.add(hdct);
             }
 
@@ -159,56 +165,24 @@ public class BanHangDAO {
         }
     }
 
-    public ArrayList<SanPhamChiTiet> selectSPCT() {
-        ArrayList<SanPhamChiTiet> lst = new ArrayList<>();
-        try {
-            String sqlLocal = """
-                         select 
-                         sanPhamChiTiet.sPCT_id,
-                         sanPham.ten,
-                         mauSac.tenMau,
-                         chatLieu.ten,
-                         size.giaTri,
-                         sanPhamChiTiet.donGia,
-                         sanPhamChiTiet.soLuong
-                         from sanPhamChiTiet 
-                         join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id 
-                         join size on size.size_id = sanPhamChiTiet.size_id
-                         join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                         join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                          where sanPham.trangThai like N'Đang bán'
-                         """;
-            Connection cn = DB_Connect.getConnection();
-            PreparedStatement pstm = cn.prepareStatement(sqlLocal);
-            ResultSet rsLocal = pstm.executeQuery();
-            while (rsLocal.next()) {
-                SanPhamChiTiet spct = new SanPhamChiTiet();
-                spct.setsPCT_id(rsLocal.getString("sPCT_id"));
-                spct.setSanPham(rsLocal.getString("ten"));
-                spct.setMauSac(rsLocal.getString("tenMau"));
-                spct.setChatLieu(rsLocal.getString(4));
-                spct.setSize(rsLocal.getInt("giaTri"));
-                spct.setDonGia(rsLocal.getBigDecimal("donGia"));
-                spct.setSoLuong(rsLocal.getInt("soLuong"));
-                lst.add(spct);
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        return lst;
-    }
-
     public ArrayList<SanPhamChiTiet> selectSPCT2(String key) {
         ArrayList<SanPhamChiTiet> lst = new ArrayList<>();
         try {
             String sqlLocal = """
-                         select sanPhamChiTiet.sPCT_id, sanPham.ten, mauSac.tenMau, chatLieu.ten, size.giaTri, sanPhamChiTiet.donGia, sanPhamChiTiet.soLuong
-                         from sanPhamChiTiet 
-                         join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id
-                         join size on size.size_id = sanPhamChiTiet.size_id
-                         join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                         join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id 
-                         WHERE
+                        SELECT     dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
+                                    dbo.sanPham.ten AS tenSanPham, 
+                                    dbo.mauSac.tenMau AS mauSac, 
+                                    dbo.size.giaTri AS size, 
+                                    dbo.sanPhamChiTiet.donGia AS donGia, 
+                                    dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                                    dbo.chuongTrinhKhuyenMai.giamGia AS giamGia
+                        FROM     dbo.chuongTrinhKhuyenMai 
+                        INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+                        INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                        INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                        INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                        INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                        WHERE
                              sanPham.trangThai LIKE N'Đang bán'
                              AND (sanPham.ten LIKE N'%' + ? + N'%' OR sanPhamChiTiet.sPCT_id LIKE N'%' + ? + N'%');""";
             Connection cn = DB_Connect.getConnection();
@@ -218,13 +192,15 @@ public class BanHangDAO {
             ResultSet rsLocal = pstm.executeQuery();
             while (rsLocal.next()) {
                 SanPhamChiTiet spct = new SanPhamChiTiet();
-                spct.setsPCT_id(rsLocal.getString("sPCT_id"));
-                spct.setSanPham(rsLocal.getString("ten"));
-                spct.setMauSac(rsLocal.getString("tenMau"));
-                spct.setChatLieu(rsLocal.getString(4));
-                spct.setSize(rsLocal.getInt("giaTri"));
+
+                spct.setSPCT_id(rsLocal.getString("sPCT_id"));
+                spct.setTenSanPham(rsLocal.getString("tenSanPham"));
+                spct.setMauSac(rsLocal.getString("mauSac"));
+                spct.setSize(rsLocal.getInt("size"));
                 spct.setDonGia(rsLocal.getBigDecimal("donGia"));
                 spct.setSoLuong(rsLocal.getInt("soLuong"));
+                spct.setGiamGia(rsLocal.getInt("giamGia"));
+
                 lst.add(spct);
             }
         } catch (Exception e) {
@@ -240,16 +216,26 @@ public class BanHangDAO {
     PreparedStatement ps = null;
 
     public int insertHoaDonCho(HoaDon hDC) {
-        sql = "INSERT INTO hoaDon (hoaDon_id, nhanVien_id, tongTien, trangThai, khachHang_id, thanhToan_id) VALUES (?, ?, ?, ?, ?, ?)";
+        sql = """
+              INSERT INTO [dbo].[hoaDon]
+                                         ([hoaDon_id]
+                                         ,[ngayTaoHD]
+                                         ,[nhanVien_id]
+                                         ,[trangThai]
+                                         ,[khachHang_id])
+                                   VALUES(?, ?, ?, ?, ?)
+              """;
         try {
             con = DB_Connect.getConnection();
+
             ps = con.prepareCall(sql);
+
             ps.setObject(1, hDC.getMaHoaDon());
-            ps.setObject(2, hDC.getMaNhanVien());
-            ps.setObject(3, hDC.getTongTien());
+            ps.setObject(2, hDC.getNgayTao());
+            ps.setObject(3, hDC.getMaNhanVien());
             ps.setObject(4, hDC.getTrangThai());
             ps.setObject(5, hDC.getMaKhachHang());
-            ps.setObject(6, hDC.getMaThanhToan());
+
             return ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -259,16 +245,29 @@ public class BanHangDAO {
 
     // hàm này có chức năng thêm 1 hdct mới
     public int insertHoaDonCT(HoaDonChiTiet hDCT) {
-        sql = "INSERT INTO hoaDonChiTiet (hDCT_id, hoaDon_id, sPCT_id, soLuong, giaBan, thanTien) VALUES (?, ?, ?, ?, ?, ?)";
+        sql = """
+                   INSERT INTO [dbo].[hoaDon]
+                                            ([hoaDon_id]
+                                            ,[nhanVien_id]
+                                            ,[tongTien]
+                                            ,[trangThai]
+                                            ,[khachHang_id]
+                                            ,[thanhToan_id]
+                                            ,[voucher_id])
+                   VALUES ( ?, ?, ?, ?, ?, ?, ?)
+              """;
         try {
             con = DB_Connect.getConnection();
+
             ps = con.prepareCall(sql);
-            ps.setObject(1, hDCT.getMaHDCT());
-            ps.setObject(2, hDCT.getMaHoaDon());
-            ps.setObject(3, hDCT.getMaSanPham());
+            ps.setObject(1, hDCT.getHDCT_id());
+            ps.setObject(2, hDCT.getHoaDon_id());
+            ps.setObject(3, hDCT.getSPCT_id());
             ps.setObject(4, hDCT.getSoLuong());
             ps.setObject(5, hDCT.getGiaBan());
             ps.setObject(6, hDCT.getThanhTien());
+            ps.setObject(7, hDCT.getVoucher_id());
+
             return ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -283,9 +282,9 @@ public class BanHangDAO {
             con = DB_Connect.getConnection();
             ps = con.prepareCall(sql);
             if (hDCT != null) {
-                ps.setObject(1, hDCT.getMaHDCT());
-                ps.setObject(2, hDCT.getMaHoaDon());
-                ps.setObject(3, hDCT.getMaSanPham());
+                ps.setObject(1, hDCT.getHDCT_id());
+                ps.setObject(2, hDCT.getHoaDon_id());
+                ps.setObject(3, hDCT.getSPCT_id());
                 ps.setObject(4, hDCT.getSoLuong());
                 // ps.setObject(5, hDCT.getGiaBan());
                 //  ps.setObject(6, hDCT.getThanhTien());
@@ -350,7 +349,6 @@ public class BanHangDAO {
         }
     }
 
-    
     /// hàm này có tác dụng lấy ra số lượng của sản phẩm chi tiết theo mã sản phẩm chi tiết
     public SanPhamChiTiet selectSoLuongSPCTAnđonGia(String sPCT_id) {
         sql = """
@@ -358,12 +356,11 @@ public class BanHangDAO {
                     ,[soLuong]
                     ,[donGia]
                     ,[size_id]
-                    ,[chatLieu_id]
-                    ,[nhaCC_id]
                     ,[anh]
                     ,[mauSac_id]
                     ,[sanPham_id]
-                FROM [dbo].[sanPhamChiTiet] where sPCT_id like ?
+                FROM [dbo].[sanPhamChiTiet] 
+              where sPCT_id like ?
               """;
         int soLuong = 0;
         BigDecimal donGia;
@@ -372,7 +369,7 @@ public class BanHangDAO {
             ps = con.prepareStatement(sql);
             ps.setObject(1, sPCT_id);
             rs = ps.executeQuery();
-             SanPhamChiTiet spct = new SanPhamChiTiet();
+            SanPhamChiTiet spct = new SanPhamChiTiet();
             while (rs.next()) {
                 spct.setSoLuong(rs.getInt("soLuong"));
                 spct.setDonGia(rs.getBigDecimal("donGia"));
@@ -419,7 +416,7 @@ public class BanHangDAO {
                         [dbo].[khachHang] 
                     LEFT JOIN 
                         hoaDon ON hoaDon.khachHang_id = khachHang.khachHang_id 
-              where sdt = ?
+                    where sdt = ?
                     GROUP BY 
                         [khachHang].[khachHang_id],
                         [hoTenKH],
@@ -458,46 +455,40 @@ public class BanHangDAO {
         }
     }
 
-    public List<SanPhamChiTiet> locSanPhamChiTiet(Integer mauSac_id, Integer size_id, Integer chatLieu_id) {
+    public List<SanPhamChiTiet> locSanPhamChiTiet(Integer mauSac_id, Integer size_id) {
         sql = """
-              select 
-                                       sanPhamChiTiet.sPCT_id,
-                                       sanPham.ten,
-                                       mauSac.tenMau,
-                                       chatLieu.ten,
-                                       size.giaTri,
-                                       sanPhamChiTiet.donGia,
-                                       sanPhamChiTiet.soLuong
-                                       from sanPhamChiTiet 
-                                       join sanPham on sanPham.sanPham_id = sanPhamChiTiet.sanPham_id 
-                                       join size on size.size_id = sanPhamChiTiet.size_id
-                                       join mauSac on mauSac.mauSac_id = sanPhamChiTiet.mauSac_id
-                                       join chatLieu on chatLieu.chatLieu_id = sanPhamChiTiet.chatLieu_id
-                                        where sanPham.trangThai like N'Đang bán' and
-                  
-                  (sanPhamChiTiet.mauSac_id = ? OR ? IS NULL OR 1 = '')
-                  AND (sanPhamChiTiet.size_id = ? OR ? IS NULL OR 1 = '')
-                  AND (sanPhamChiTiet.chatLieu_id = ? OR ? IS NULL OR 1 = '');
+                    SELECT      dbo.sanPhamChiTiet.sPCT_id AS sPCT_id , 
+                                dbo.sanPham.ten AS tenSanPham, 
+                                dbo.mauSac.tenMau AS mauSac, 
+                                dbo.size.giaTri AS size, 
+                                dbo.sanPhamChiTiet.donGia AS donGia, 
+                                dbo.sanPhamChiTiet.soLuong AS soLuong
+                    FROM     dbo.mauSac 
+                    INNER JOIN dbo.sanPhamChiTiet ON dbo.mauSac.mauSac_id = dbo.sanPhamChiTiet.mauSac_id 
+                    INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                    INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id                    
+                    where sanPham.trangThai like N'Đang bán' and (sanPhamChiTiet.mauSac_id = ? OR ? IS NULL OR 1 = '')
+                    AND (sanPhamChiTiet.size_id = ? OR ? IS NULL OR 1 = '');
               """;
         List<SanPhamChiTiet> listSPCT = new ArrayList<>();
         try {
             con = DB_Connect.getConnection();
+
             ps = con.prepareCall(sql);
             ps.setObject(1, mauSac_id);
             ps.setObject(2, mauSac_id);
             ps.setObject(3, size_id);
             ps.setObject(4, size_id);
-            ps.setObject(5, chatLieu_id);
-            ps.setObject(6, chatLieu_id);
+
             rs = ps.executeQuery();
 
             while (rs.next()) {
                 SanPhamChiTiet spct = new SanPhamChiTiet();
-                spct.setsPCT_id(rs.getString("sPCT_id"));
-                spct.setSanPham(rs.getString("ten"));
-                spct.setMauSac(rs.getString("tenMau"));
-                spct.setChatLieu(rs.getString(4));
-                spct.setSize(rs.getInt("giaTri"));
+
+                spct.setSPCT_id(rs.getString("sPCT_id"));
+                spct.setTenSanPham(rs.getString("tenSanPham"));
+                spct.setMauSac(rs.getString("mauSac"));
+                spct.setSize(rs.getInt("size"));
                 spct.setDonGia(rs.getBigDecimal("donGia"));
                 spct.setSoLuong(rs.getInt("soLuong"));
                 listSPCT.add(spct);
@@ -533,28 +524,6 @@ public class BanHangDAO {
         return null;
     }
 
-    public ChatLieu selectByTenChatLieu(String tenChatLieu) {
-        List<ChatLieu> lst = new ArrayList<>();
-        sql = "select chatLieu_id, ten, nguongoc,mota from chatLieu where ten like ?";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, tenChatLieu);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                ChatLieu cl = new ChatLieu(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
-                lst.add(cl);
-            }
-            if (!lst.isEmpty()) {
-                return lst.get(0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        return null;
-    }
-
     public MauSac selectByTenMau(String tenMau) {
         sql = "select mausac_id, tenmau ,mota from MauSac where tenMau like ?";
         List<MauSac> lst = new ArrayList<>();
@@ -579,5 +548,24 @@ public class BanHangDAO {
             return null;
         }
         return null;
+    }
+
+    public int updateTrangThaiHoaDon(String hoaDon_id, String trangThai) {
+        
+        String sql = """
+                        UPDATE [dbo].[hoaDon]
+                        SET [trangThai] = ?                
+                        WHERE hoaDon_id = ?
+                     """;
+        try (Connection con = DB_Connect.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, trangThai);
+            ps.setString(2, hoaDon_id);
+
+            return ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 }

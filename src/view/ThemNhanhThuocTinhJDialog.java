@@ -5,9 +5,11 @@
 package view;
 
 import dao.ChatLieuDAO;
+import dao.LoaiDeGiayDAO;
 import dao.MauSacDAO;
 import dao.SizeDAO;
 import entity.ChatLieu;
+import entity.LoaiDeGiay;
 import entity.MauSac;
 import entity.Size;
 import java.awt.HeadlessException;
@@ -23,17 +25,22 @@ import view.SanPham_View;
 public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
 
     DefaultTableModel model = new DefaultTableModel();
-   // Size sz = new Size();
-    SizeDAO service = new SizeDAO();
+
     int index;
-   // MauSac ms = new MauSac();
+
+    SizeDAO serviceSize = new SizeDAO();
+
     MauSacDAO serviceMS = new MauSacDAO();
-   // ChatLieu cl = new ChatLieu();
+
     ChatLieuDAO serviceCL = new ChatLieuDAO();
-    //SanPham_View spv = new SanPham_View();
+
+    LoaiDeGiayDAO serviceDG = new LoaiDeGiayDAO();
+
     public static int tabs;
+
     /**
      * Creates new form ThemNhanhThuocTinhJDialog
+     *
      * @param parent
      * @param modal
      */
@@ -41,6 +48,27 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
+
+        // Khởi tạo lblSizeId và đặt nó ẩn
+        lblSizeId = new javax.swing.JLabel();
+        lblSizeId.setVisible(false);
+        add(lblSizeId); // Thêm lblSizeId vào form
+
+        // Khởi tạo lblMauSacId trong constructor hoặc phương thức khởi tạo form
+        lblMauSacId = new javax.swing.JLabel();
+        lblMauSacId.setVisible(false);
+        add(lblMauSacId); // Thêm lblMauSacId vào form
+
+        // Khởi tạo lblChatLieuId
+        lblChatLieuId = new javax.swing.JLabel();
+        lblChatLieuId.setVisible(false); // Đặt ẩn để lưu trữ chatLieu_id
+        add(lblChatLieuId);
+
+        // Khởi tạo lblDGId trong constructor hoặc phương thức khởi tạo form
+        lblDGId = new javax.swing.JLabel();
+        lblDGId.setVisible(false);
+        add(lblDGId); // Thêm lblDGId vào form
+
         switch (ThemNhanhThuocTinhJDialog.tabs) {
             case 0:
                 tabs1.setSelectedIndex(tabs);
@@ -52,14 +80,17 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
                 tabs1.setSelectedIndex(tabs);
                 break;
         }
-        fillToTable(service.selectAll());
-        showD();
+        fillSizeToTable(serviceSize.selectAll());
+        showDetailSize();
 
-        fill(serviceMS.selectAll());
-        showMS();
+        fillMauSacToTable(serviceMS.selectAll());
+        showDetailMS();
 
-        fillCL(serviceCL.selectAll());
-        showCL();
+        fillChatLieuToTable(serviceCL.selectAll());
+        showDetailCL();
+
+        fillDGToTable(serviceDG.selectAll());
+        showDetailDG();
 
     }
 
@@ -104,6 +135,16 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
         btnSua2 = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
         txtMoTa = new javax.swing.JTextArea();
+        jPanel7 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        txtTenDe = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        txtChieuCao = new javax.swing.JTextField();
+        jPanel8 = new javax.swing.JPanel();
+        btnThem3 = new javax.swing.JButton();
+        btnSua3 = new javax.swing.JButton();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        tblLoaiDeGiay = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -115,13 +156,16 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel1.setText("Size");
 
+        txtSize.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSizeActionPerformed(evt);
+            }
+        });
+
         tblSize.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         tblSize.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+
             },
             new String [] {
                 "Size id", "Giá trị"
@@ -199,9 +243,9 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(63, 63, 63)
-                .addComponent(jLabel1)
-                .addGap(53, 53, 53)
+                .addGap(42, 42, 42)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
                 .addComponent(txtSize, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -224,7 +268,7 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -243,10 +287,7 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
 
         tblMauSac.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "Màu sắc id", "Tên màu", "Mô tả"
@@ -350,6 +391,9 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel2, jLabel4});
+
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
@@ -371,6 +415,8 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        jPanel2Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabel2, jLabel4});
+
         tabs1.addTab("Màu Sắc", jPanel2);
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
@@ -380,10 +426,7 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
 
         tblChatLieu.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "Chất liệu id", "Tên", "Nguồn gốc", "Mô tả"
@@ -474,47 +517,168 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(44, 44, 44)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addComponent(jLabel3)
-                            .addGap(14, 14, 14)
-                            .addComponent(txtTenChatLieu, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addComponent(jLabel6)
-                            .addGap(26, 26, 26)
-                            .addComponent(txtNguonGoc, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addGap(55, 55, 55)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane4)
+                    .addComponent(txtNguonGoc)
+                    .addComponent(txtTenChatLieu))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37))
         );
+
+        jPanel3Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel3, jLabel6, jLabel7});
+
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap(49, Short.MAX_VALUE)
+                .addGap(34, 34, 34)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(txtTenChatLieu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(txtNguonGoc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel7)))
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(23, 23, 23))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel6)
+                                    .addComponent(txtNguonGoc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel7))
+                                .addGap(12, 12, 12))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(txtTenChatLieu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
+        jPanel3Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabel3, jLabel6, jLabel7});
+
         tabs1.addTab("Chất liệu", jPanel3);
+
+        jLabel5.setText("Tên Loại Đế");
+
+        jLabel8.setText("Chiều Cao");
+
+        jPanel8.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+
+        btnThem3.setBackground(new java.awt.Color(0, 204, 0));
+        btnThem3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        btnThem3.setForeground(new java.awt.Color(255, 255, 255));
+        btnThem3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Create.png"))); // NOI18N
+        btnThem3.setText("Thêm");
+        btnThem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnThem3ActionPerformed(evt);
+            }
+        });
+
+        btnSua3.setBackground(new java.awt.Color(255, 204, 51));
+        btnSua3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        btnSua3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Edit.png"))); // NOI18N
+        btnSua3.setText("Sửa");
+        btnSua3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSua3ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnSua3)
+                    .addComponent(btnThem3)))
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnThem3)
+                .addGap(29, 29, 29)
+                .addComponent(btnSua3)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+
+        tblLoaiDeGiay.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Đế giầy_id", "Tên đế", "Chiều cao"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblLoaiDeGiay.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblLoaiDeGiayMouseClicked(evt);
+            }
+        });
+        jScrollPane5.setViewportView(tblLoaiDeGiay);
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(60, 60, 60)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtTenDe, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
+                        .addComponent(txtChieuCao, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28))
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(45, 45, 45)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtTenDe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))
+                        .addGap(28, 28, 28)
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtChieuCao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel8))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18))
+        );
+
+        tabs1.addTab("Loại Đế Giày", jPanel7);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -543,148 +707,162 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
         // TODO add your handling code here:
-        if (checkSize()) {
-            Size sz = readForm();
-            if (service.insert(sz) != 0) {
-                JOptionPane.showMessageDialog(this, "Thêm thành công");
-                fillToTable(service.selectAll());
-            } else {
-                JOptionPane.showMessageDialog(this, "Thêm lỗi");
+        // Thêm size
+        try {
+            Size size = readFormSize();
+            if (checkSize()) {
+                serviceSize.insert(size);
+                fillSizeToTable(serviceSize.selectAll());
+                JOptionPane.showMessageDialog(this, "Thêm size thành công");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Thêm size thất bại");
         }
     }//GEN-LAST:event_btnThemActionPerformed
 
     private void btnThem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThem1ActionPerformed
         // TODO add your handling code here:
-        if (checkMS()) {
-            MauSac ms = readFormMS();
-            if (serviceMS.insert(ms) != 0) {
-                JOptionPane.showMessageDialog(this, "Thêm thành công");
-                fill(serviceMS.selectAll());
-            } else {
-                JOptionPane.showMessageDialog(this, "Thêm lỗi");
+        // Thêm màu sắc
+        try {
+            MauSac mauSac = readFormMS();
+            if (checkMS()) {
+                serviceMS.insert(mauSac);
+                fillMauSacToTable(serviceMS.selectAll());
+                JOptionPane.showMessageDialog(this, "Thêm màu sắc thành công");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Thêm màu sắc thất bại");
         }
     }//GEN-LAST:event_btnThem1ActionPerformed
 
     private void btnSua1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSua1ActionPerformed
         // TODO add your handling code here:
-        if (checkMS()) {
+        // Sửa màu sắc
+        try {
             MauSac ms = readFormMS();
-            String key = tblMauSac.getValueAt(index, 0) + "";
-            if (serviceMS.update(key, ms) != 0) {
-                JOptionPane.showMessageDialog(this, "Sửa thành công");
-                fill(serviceMS.selectAll());
-            } else {
-                JOptionPane.showMessageDialog(this, "Sửa lỗi");
+            if (checkMS()) {
+                serviceMS.update(ms);
+                fillMauSacToTable(serviceMS.selectAll());
+                JOptionPane.showMessageDialog(this, "Update màu sắc thành công");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Update màu sắc thất bại");
         }
     }//GEN-LAST:event_btnSua1ActionPerformed
 
     private void btnThem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThem2ActionPerformed
         // TODO add your handling code here:
-        if (checkCL()) {
-            ChatLieu cl = readFormCL();
-            if (serviceCL.insert(cl) != 0) {
-                JOptionPane.showMessageDialog(this, "Thêm thành công");
-                fillCL(serviceCL.selectAll());
-            } else {
-                JOptionPane.showMessageDialog(this, "Thêm lỗi");
+        // Thêm chất liệu
+        try {
+            ChatLieu chatLieu = readFormCL();
+            if (checkCL()) {
+                serviceCL.insert(chatLieu);
+                fillChatLieuToTable(serviceCL.selectAll());
+                JOptionPane.showMessageDialog(this, "Thêm chất liệu thành công");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Thêm chất liệu thất bại");
         }
     }//GEN-LAST:event_btnThem2ActionPerformed
 
     private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
         // TODO add your handling code here:
-        if (checkSize()) {
-            Size sz = readForm();
-            String size_id = tblSize.getValueAt(index, 0) + "";
-            if (service.update(size_id, sz) != 0) {
-                JOptionPane.showMessageDialog(this, "Sửa thành công");
-                fillToTable(service.selectAll());
-            } else {
-                JOptionPane.showMessageDialog(this, "Sửa lỗi");
+        // Sửa size
+        try {
+            Size sz = readFormSize();
+            if (checkSize()) {
+                serviceSize.update(sz);
+                fillSizeToTable(serviceSize.selectAll());
+                JOptionPane.showMessageDialog(this, "Update size thành công");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Update size thất bại");
         }
+
     }//GEN-LAST:event_btnSuaActionPerformed
 
     private void tblMauSacMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblMauSacMouseClicked
         // TODO add your handling code here:
         index = tblMauSac.getSelectedRow();
-        showMS();
+        showDetailMS();
     }//GEN-LAST:event_tblMauSacMouseClicked
 
-    public void xoaSize() throws HeadlessException {
-        // TODO add your handling code here:
-        String key = tblSize.getValueAt(index, 0) + "";
-        int hoi = JOptionPane.showConfirmDialog(this, "Bạn có muốn xóa không?");
-        if (hoi == JOptionPane.YES_OPTION) {
-            if (service.delete(key) != 0) {
-                JOptionPane.showMessageDialog(this, "Xóa thành công!");
-                fillToTable(service.selectAll());
-                clearSize();
-            } else {
-                JOptionPane.showMessageDialog(this, "Dữ liệu đang được sử dụng không thể xoá!!");
-            }
-        }
-    }
 
     private void btnSua2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSua2ActionPerformed
         // TODO add your handling code here:
-        if (checkCL()) {
-            ChatLieu cl = readFormCL();
-            String key = tblChatLieu.getValueAt(index, 0) + "";
-            if (serviceCL.update(key, cl) != 0) {
-                JOptionPane.showMessageDialog(this, "Sửa thành công!!");
-                fillCL(serviceCL.selectAll());
-            } else {
-                JOptionPane.showMessageDialog(this, "Sửa lỗi!!");
+        // Sửa chất liệu
+        try {
+            ChatLieu chatLieu = readFormCL();
+            if (checkCL()) {
+                serviceCL.update(chatLieu);
+                fillChatLieuToTable(serviceCL.selectAll());
+                JOptionPane.showMessageDialog(this, "Update chất liệu thành công");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Update chất liệu thất bại");
         }
     }//GEN-LAST:event_btnSua2ActionPerformed
 
     private void tblChatLieuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblChatLieuMouseClicked
         // TODO add your handling code here:
         index = tblChatLieu.getSelectedRow();
-        showCL();
+        showDetailCL();
     }//GEN-LAST:event_tblChatLieuMouseClicked
 
-    public void xoaMauSac() throws HeadlessException {
-        // TODO add your handling code here:
-        String key = tblMauSac.getValueAt(index, 0) + "";
-        int hoi = JOptionPane.showConfirmDialog(this, "Bạn có muốn xóa không?");
-        if (hoi == JOptionPane.YES_OPTION) {
-            if (serviceMS.delete(key) != 0) {
-                JOptionPane.showMessageDialog(this, "Xóa thành công!!");
-                fill(serviceMS.selectAll());
-                clearMS();
-            } else {
-                JOptionPane.showMessageDialog(this, "Dữ liệu đang được sử dụng không thể xoá!!");
-            }
-        }
-    }
-
-    public void xoaChatLieu() throws HeadlessException {
-        // TODO add your handling code here:
-        String key = tblChatLieu.getValueAt(index, 0) + "";
-        int hoi = JOptionPane.showConfirmDialog(this, "Bạn có muốn xóa không?");
-        if (hoi == JOptionPane.YES_OPTION) {
-            if (serviceCL.delete(key) != 0) {
-                JOptionPane.showMessageDialog(this, "Xóa thành công!!");
-                fillCL(serviceCL.selectAll());
-                clearCL();
-                
-            } else {
-                JOptionPane.showMessageDialog(this, "Dữ liệu đang được sử dụng không thể xoá!!");
-            }
-        }
-    }
 
     private void tblSizeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSizeMouseClicked
         // TODO add your handling code here:
         index = tblSize.getSelectedRow();
-        showD();
+        showDetailSize();
     }//GEN-LAST:event_tblSizeMouseClicked
+
+    private void txtSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSizeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSizeActionPerformed
+
+    private void btnThem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThem3ActionPerformed
+        // TODO add your handling code here:
+        // Thêm Loại đế giày
+        try {
+            LoaiDeGiay dg = readFormDG(); // Đọc dữ liệu từ form
+            if (checkDG()) { // Kiểm tra các điều kiện để thêm
+                serviceDG.insert(dg); // Gọi service để thêm vào cơ sở dữ liệu
+                fillDGToTable(serviceDG.selectAll()); // Cập nhật lại bảng hiển thị
+                JOptionPane.showMessageDialog(this, "Thêm loại đế giày thành công");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Thêm loại đế giày thất bại");
+        }
+    }//GEN-LAST:event_btnThem3ActionPerformed
+
+    private void btnSua3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSua3ActionPerformed
+        // TODO add your handling code here:
+        // Sửa loại đế giày
+        try {
+            LoaiDeGiay dg = readFormDG(); // Đọc dữ liệu từ form
+            if (checkDG()) { // Kiểm tra các điều kiện để sửa
+                dg.setDeGiay_id(Integer.parseInt(lblDGId.getText())); // Lấy id từ label ẩn
+                serviceDG.update(dg); // Gọi service để cập nhật vào cơ sở dữ liệu
+                fillDGToTable(serviceDG.selectAll()); // Cập nhật lại bảng hiển thị
+                JOptionPane.showMessageDialog(this, "Cập nhật loại đế giày thành công");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Cập nhật loại đế giày thất bại");
+        }
+    }//GEN-LAST:event_btnSua3ActionPerformed
+
+    private void tblLoaiDeGiayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblLoaiDeGiayMouseClicked
+        index = tblLoaiDeGiay.getSelectedRow();
+        showDetailDG();
+    }//GEN-LAST:event_tblLoaiDeGiayMouseClicked
 
     /**
      * @param args the command line arguments
@@ -712,6 +890,7 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
             java.util.logging.Logger.getLogger(ThemNhanhThuocTinhJDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -732,48 +911,63 @@ public class ThemNhanhThuocTinhJDialog extends javax.swing.JDialog {
     private javax.swing.JButton btnSua;
     private javax.swing.JButton btnSua1;
     private javax.swing.JButton btnSua2;
+    private javax.swing.JButton btnSua3;
     private javax.swing.JButton btnThem;
     private javax.swing.JButton btnThem1;
     private javax.swing.JButton btnThem2;
+    private javax.swing.JButton btnThem3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTabbedPane tabs1;
     private javax.swing.JTable tblChatLieu;
+    private javax.swing.JTable tblLoaiDeGiay;
     private javax.swing.JTable tblMauSac;
     private javax.swing.JTable tblSize;
+    private javax.swing.JTextField txtChieuCao;
     private javax.swing.JTextArea txtMoTa;
     private javax.swing.JTextField txtMoTaMau;
     private javax.swing.JTextField txtNguonGoc;
     private javax.swing.JTextField txtSize;
     private javax.swing.JTextField txtTenChatLieu;
+    private javax.swing.JTextField txtTenDe;
     private javax.swing.JTextField txtTenMau;
     // End of variables declaration//GEN-END:variables
-private void fillToTable(List<Size> lst) {
+    private javax.swing.JLabel lblSizeId;
+    private javax.swing.JLabel lblMauSacId; // Khai báo biến
+    private javax.swing.JLabel lblChatLieuId; // Khai báo label
+    private javax.swing.JLabel lblDGId;
+
+    private void fillSizeToTable(List<Size> lst) {
         model = (DefaultTableModel) tblSize.getModel();
         model.setRowCount(0);
         for (Size sz : lst) {
-            model.addRow(sz.toDataRow());
+            model.addRow(sz.DataSize());
         }
     }
 
-    private void showD() {
-        Size sz = service.selectAll().get(index);
+    private void showDetailSize() {
+        Size sz = serviceSize.selectAll().get(index);
+        lblSizeId.setText(String.valueOf(sz.getSize_id())); // Lưu size_id vào label ẩn
         txtSize.setText(sz.getGiatri() + "");
-
     }
 
     private boolean checkSize() {
@@ -782,43 +976,44 @@ private void fillToTable(List<Size> lst) {
             return false;
         }
         try {
-            if (Integer.parseInt(txtSize.getText().trim()) < 35 || Integer.parseInt(txtSize.getText().trim()) > 49) {
+            int sizeValue = Integer.parseInt(txtSize.getText().trim());
+            if (sizeValue < 35 || sizeValue > 49) {
                 JOptionPane.showMessageDialog(this, "Size giày nằm trong khoảng từ 35 đến 49");
                 return false;
             }
-            if (null != service.selectByGiaTri(Integer.parseInt(txtSize.getText().trim()))) {
-            if (Integer.parseInt(txtSize.getText().trim()) == service.selectByGiaTri(Integer.parseInt(txtSize.getText().trim())).getGiatri()) {
-                JOptionPane.showMessageDialog(this, "Giá trị size " + txtSize.getText() + " đã tồn tại!!");
+            Size existingSize = serviceSize.selectByGiaTri(sizeValue);
+            if (existingSize != null && existingSize.getSize_id() != Integer.parseInt(lblSizeId.getText())) {
+                JOptionPane.showMessageDialog(this, "Giá trị size " + sizeValue + " đã tồn tại!!");
                 return false;
             }
-        }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Size không đúng định dạng");
             return false;
         }
-        
-
         return true;
     }
 
-    private Size readForm() {
-        return new Size(Integer.parseInt(txtSize.getText()));
+    private Size readFormSize() {
+        Size sz = new Size();
+        sz.setSize_id(Integer.parseInt(lblSizeId.getText())); // Gán size_id từ label ẩn
+        sz.setGiatri(Integer.parseInt(txtSize.getText().trim()));
+        return sz;
 
     }
 
-    private void fill(List<MauSac> lst) {
+    private void fillMauSacToTable(List<MauSac> lst) {
         model = (DefaultTableModel) tblMauSac.getModel();
         model.setRowCount(0);
         for (MauSac ms : lst) {
-            model.addRow(ms.toDaTaRowMS());
+            model.addRow(ms.DataMauSac());
         }
     }
 
-    private void showMS() {
+    private void showDetailMS() {
         MauSac ms = serviceMS.selectAll().get(index);
-        txtTenMau.setText(ms.getTenMau());
+        lblMauSacId.setText(String.valueOf(ms.getMauSac_id())); // Gán mauSac_id vào label ẩn
+        txtTenMau.setText(ms.getTenMauSac());
         txtMoTaMau.setText(ms.getMoTa());
-
     }
 
     private boolean checkMS() {
@@ -832,33 +1027,36 @@ private void fillToTable(List<Size> lst) {
             return false;
         }
 
-        if (serviceMS.selectByTenMau(txtTenMau.getText().trim()) != null) {
-            if (txtTenMau.getText().trim().equalsIgnoreCase(serviceMS.selectByTenMau(txtTenMau.getText().trim()).getTenMau())) {
-                JOptionPane.showMessageDialog(this,   serviceMS.selectByTenMau(txtTenMau.getText().trim()).getTenMau() + " đã tồn tại");
-                return false;
-            }
-            
+        MauSac existingMauSac = serviceMS.selectByTenMau(txtTenMau.getText().trim());
+        if (existingMauSac != null && !existingMauSac.getMauSac_id().equals(readFormMS().getMauSac_id())) {
+            JOptionPane.showMessageDialog(this, txtTenMau.getText().trim() + " đã tồn tại");
+            return false;
         }
 
         return true;
     }
 
     private MauSac readFormMS() {
-        return new MauSac(txtTenMau.getText(),
-                txtMoTaMau.getText());
+        MauSac ms = new MauSac();
+        // Đảm bảo rằng có một biến `lblMauSacId` để lấy ID của màu sắc
+        ms.setMauSac_id(Integer.parseInt(lblMauSacId.getText()));
+        ms.setTenMauSac(txtTenMau.getText().trim());
+        ms.setMoTa(txtMoTaMau.getText().trim());
+        return ms;
     }
 
-    private void fillCL(List<ChatLieu> lst) {
+    private void fillChatLieuToTable(List<ChatLieu> lst) {
         model = (DefaultTableModel) tblChatLieu.getModel();
         model.setRowCount(0);
         for (ChatLieu cl : lst) {
-            model.addRow(cl.DataCL());
+            model.addRow(cl.DataChatLieu());
         }
     }
 
-    private void showCL() {
+    private void showDetailCL() {
         ChatLieu cl = serviceCL.selectAll().get(index);
-        txtTenChatLieu.setText(cl.getTenCL());
+        lblChatLieuId.setText(cl.getChatLieu_id().toString()); // Giả sử chatLieu_id là Integer
+        txtTenChatLieu.setText(cl.getTenChatLieu());
         txtNguonGoc.setText(cl.getNguonGoc());
         txtMoTa.setText(cl.getMota());
     }
@@ -872,26 +1070,24 @@ private void fillToTable(List<Size> lst) {
             JOptionPane.showMessageDialog(this, "Không được để trống");
             return false;
         }
-
         if (txtMoTa.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Không được để trống");
             return false;
         }
-
-        if (serviceCL.selectByTenChatLieu(txtTenChatLieu.getText().trim()) != null) {
-            if (txtTenChatLieu.getText().trim().equalsIgnoreCase(serviceCL.selectByTenChatLieu(txtTenChatLieu.getText().trim()).getTenCL())) {
-                JOptionPane.showMessageDialog(this, "Chất liệu " + serviceCL.selectByTenChatLieu(txtTenChatLieu.getText().trim()).getTenCL() + " đã tồn tại");
-                return false;
-            }
+        ChatLieu existingChatLieu = serviceCL.selectByTenCL(txtTenChatLieu.getText().trim());
+        if (existingChatLieu != null && !existingChatLieu.getChatLieu_id().equals(readFormCL().getChatLieu_id())) {
+            JOptionPane.showMessageDialog(this, "Chất liệu " + existingChatLieu.getTenChatLieu()+ " đã tồn tại");
+            return false;
         }
-
         return true;
     }
 
     private ChatLieu readFormCL() {
-        return new ChatLieu(txtTenChatLieu.getText(),
+        return new ChatLieu(
+                txtTenChatLieu.getText(),
                 txtNguonGoc.getText(),
-                txtMoTa.getText());
+                txtMoTa.getText()
+        );
     }
 
     private void clearCL() {
@@ -907,6 +1103,52 @@ private void fillToTable(List<Size> lst) {
 
     private void clearSize() {
         txtSize.setText("");
+    }
+
+    private void fillDGToTable(List<LoaiDeGiay> lst) {
+        DefaultTableModel model = (DefaultTableModel) tblLoaiDeGiay.getModel();
+        model.setRowCount(0);
+        for (LoaiDeGiay dg : lst) {
+            model.addRow(dg.DataLoaiDeGiay());
+        }
+    }
+
+    private void showDetailDG() {
+        LoaiDeGiay dg = serviceDG.selectAll().get(index);
+        lblDGId.setText(dg.getDeGiay_id().toString()); // Lưu id vào label ẩn
+        lblDGId.setVisible(false); // Ẩn label
+
+        // Cập nhật các trường dữ liệu khác trên form
+        txtTenDe.setText(dg.getTenDeGiay());
+        txtChieuCao.setText(dg.getChieuCao().toString());
+    }
+
+    private LoaiDeGiay readFormDG() {
+        return new LoaiDeGiay(
+                txtTenDe.getText().trim(),
+                Integer.parseInt(txtChieuCao.getText().trim())
+        );
+    }
+
+    private boolean checkDG() {
+        if (txtTenDe.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên đế giày không được để trống");
+            return false;
+        }
+
+        if (txtChieuCao.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Chiều cao không được để trống");
+            return false;
+        }
+
+        try {
+            Integer.parseInt(txtChieuCao.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Chiều cao phải là số nguyên");
+            return false;
+        }
+
+        return true;
     }
 
 }

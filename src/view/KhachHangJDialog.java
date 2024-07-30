@@ -15,7 +15,7 @@ import javax.swing.table.DefaultTableModel;
  * @author Trong Phu
  */
 public class KhachHangJDialog extends javax.swing.JDialog {
-
+    
     KhachHangDAO khdao = new KhachHangDAO();
     BanHang_View bhv = new BanHang_View();
     DefaultTableModel dtm = new DefaultTableModel();
@@ -34,21 +34,29 @@ public class KhachHangJDialog extends javax.swing.JDialog {
         txtMaKH.setText(maKHTuDong());
         txtSDT.setText(BanHang_View.sdtKH);
         loadDT(khdao.selectAll());
-
+        
     }
-
+    
     private void loadDT(List<KhachHang> listkh) {
         dtm = (DefaultTableModel) tblQLKH.getModel();
         dtm.setRowCount(0);
         for (KhachHang x : listkh) {
             Object roww[] = new Object[]{
-                x.getIdKH(), x.getHoTen(), x.getgioitinh(), x.getDiaChi(), x.getSdt(), x.getEmail(), x.getGhiChu(), x.getSoLuotMua(), x.getNgayTao()
+                x.getKhachHang_id(),
+                x.getHoTenHK(),
+                x.getgioitinh(),
+                x.getDiaChi(),
+                x.getSdt(),
+                x.getEmail(),
+                x.getGhiChu(),
+                x.getSoLuotMua(),
+                x.getNgayTao()
             };
             dtm.addRow(roww);
         }
-
+        
     }
-
+    
     private String maKHTuDong() {
         int soMaKH = khdao.selectAll().size();
         String ma = "KH" + String.format("%04d", ++soMaKH);
@@ -146,6 +154,11 @@ public class KhachHangJDialog extends javax.swing.JDialog {
 
         btnLamMoiForm.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         btnLamMoiForm.setText("Làm mới");
+        btnLamMoiForm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLamMoiFormActionPerformed(evt);
+            }
+        });
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel9.setText("(*): Thông tin bắt buộc");
@@ -314,10 +327,10 @@ public class KhachHangJDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
         try {
             KhachHang viewModel = new KhachHang();
-
-            viewModel.setIdKH(maKHTuDong());
-            viewModel.setHoTen(txtHoTen.getText());
-
+            
+            viewModel.setKhachHang_id(maKHTuDong());
+            viewModel.setHoTenHK(txtHoTen.getText());
+            
             boolean gt = true;
             if (rdoNam.isSelected()) {
                 viewModel.setGioiTinh(true);
@@ -328,9 +341,9 @@ public class KhachHangJDialog extends javax.swing.JDialog {
             viewModel.setSdt(txtSDT.getText());
             viewModel.setEmail(txtEmail.getText());
             viewModel.setGhiChu(txtGhiChu.getText());
-
+            
             for (KhachHang nv : khdao.selectAll()) {
-                if (nv.getIdKH().trim().equalsIgnoreCase(txtMaKH.getText())) {
+                if (nv.getKhachHang_id().trim().equalsIgnoreCase(txtMaKH.getText())) {
                     JOptionPane.showMessageDialog(this, "Trùng mã KH");
                     return;
                 }
@@ -340,12 +353,12 @@ public class KhachHangJDialog extends javax.swing.JDialog {
                 txtHoTen.requestFocus();
                 return;
             }
-
+            
             if (txtSDT.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Vùi lòng nhập SDT");
                 txtSDT.requestFocus();
                 return;
-
+                
             }
             for (KhachHang nv : khdao.selectAll()) {
                 if (nv.getSdt().trim().equalsIgnoreCase(txtSDT.getText().trim())) {
@@ -353,23 +366,20 @@ public class KhachHangJDialog extends javax.swing.JDialog {
                     return;
                 }
             }
-
+            
             if (!checksdt()) {
                 txtSDT.requestFocus();
                 return;
             }
-
+            
             if (!checkten()) {
                 txtHoTen.requestFocus();
                 return;
             }
-
-            if (khdao.addNH(viewModel) > 0) {
-                loadDT(khdao.selectAll());
-                JOptionPane.showMessageDialog(this, "Thêm thành công!!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Lỗi thêm !!");
-            }
+            
+            khdao.insert(viewModel);
+            loadDT(khdao.selectAll());
+            JOptionPane.showMessageDialog(this, "Thêm thành công!!");
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi thêm !!");
@@ -387,6 +397,20 @@ public class KhachHangJDialog extends javax.swing.JDialog {
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnLamMoiFormActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLamMoiFormActionPerformed
+        clearForm();
+    }//GEN-LAST:event_btnLamMoiFormActionPerformed
+    private void clearForm() {
+        txtMaKH.setText("");
+        txtHoTen.setText("");
+        rdoNam.setSelected(true);
+        txtDiaChi.setText("");
+        
+        txtSDT.setText("");
+        txtEmail.setText("");
+        txtGhiChu.setText("");
+    }
 
     /**
      * @param args the command line arguments
@@ -461,18 +485,18 @@ public class KhachHangJDialog extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
     public boolean checksdt() {
-
+        
         if (txtSDT.getText().matches("[0,+84][\\d]{9}")) {
             return true;
         }
         JOptionPane.showMessageDialog(this, "vui lòng nhập đúng số điện thoại");
-
+        
         return false;
     }
-
+    
     public boolean checkten() {
         String paramater = "^[AÀẢÃÁẠĂẰẲẴẮẶÂẦẨẪẤẬBCDĐEÈẺẼÉẸÊỀỂỄẾỆFGHIÌỈĨÍỊJKLMNOÒỎÕÓỌÔỒỔỖỐỘƠỜỞỠỚỢPQRSTUÙỦŨÚỤƯỪỬỮỨỰVWXYỲỶỸÝỴZ][aàảãáạăằẳẵắặâầẩẫấậbcdđeèẻẽéẹêềểễếệfghiìỉĩíịjklmnoòỏõóọôồổỗốộơờởỡớợpqrstuùủũúụưừửữứựvwxyỳỷỹýỵz]+ [AÀẢÃÁẠĂẰẲẴẮẶÂẦẨẪẤẬBCDĐEÈẺẼÉẸÊỀỂỄẾỆFGHIÌỈĨÍỊJKLMNOÒỎÕÓỌÔỒỔỖỐỘƠỜỞỠỚỢPQRSTUÙỦŨÚỤƯỪỬỮỨỰVWXYỲỶỸÝỴZ][aàảãáạăằẳẵắặâầẩẫấậbcdđeèẻẽéẹêềểễếệfghiìỉĩíịjklmnoòỏõóọôồổỗốộơờởỡớợpqrstuùủũúụưừửữứựvwxyỳỷỹýỵz]+(?: [AÀẢÃÁẠĂẰẲẴẮẶÂẦẨẪẤẬBCDĐEÈẺẼÉẸÊỀỂỄẾỆFGHIÌỈĨÍỊJKLMNOÒỎÕÓỌÔỒỔỖỐỘƠỜỞỠỚỢPQRSTUÙỦŨÚỤƯỪỬỮỨỰVWXYỲỶỸÝỴZ][aàảãáạăằẳẵắặâầẩẫấậbcdđeèẻẽéẹêềểễếệfghiìỉĩíịjklmnoòỏõóọôồổỗốộơờởỡớợpqrstuùủũúụưừửữứựvwxyỳỷỹýỵz]*)*";
-
+        
         if (txtHoTen.getText().matches(paramater)) {
             return true;
         }
@@ -480,8 +504,8 @@ public class KhachHangJDialog extends javax.swing.JDialog {
             return true;
         }
         JOptionPane.showMessageDialog(this, "Tên Sai Định Dạng ( Phải Là chữ và lớn hơn 2 kí Tự)");
-
+        
         return false;
     }
-
+    
 }
