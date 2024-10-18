@@ -122,7 +122,7 @@
                                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                               <Component id="cboMauSac" alignment="1" pref="178" max="32767" attributes="0"/>
                                               <Component id="cboSize" alignment="1" pref="178" max="32767" attributes="0"/>
-                                              <Component id="txtGiamGia" max="32767" attributes="0"/>
+                                              <Component id="cboCTKM" max="32767" attributes="0"/>
                                           </Group>
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                           <Group type="103" groupAlignment="0" attributes="0">
@@ -135,10 +135,10 @@
                                               <Component id="jLabel7" linkSize="5" min="-2" max="-2" attributes="0"/>
                                               <Component id="jLabel6" linkSize="5" min="-2" max="-2" attributes="0"/>
                                           </Group>
-                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                                           <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="txtSoLuong" min="-2" pref="172" max="-2" attributes="0"/>
                                               <Component id="txtDonGia" min="-2" pref="172" max="-2" attributes="0"/>
+                                              <Component id="txtSoLuong" min="-2" pref="172" max="-2" attributes="0"/>
                                           </Group>
                                       </Group>
                                   </Group>
@@ -171,50 +171,52 @@
                       <Group type="102" attributes="0">
                           <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                                  <Component id="jLabel6" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="txtSoLuong" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
+                              <Component id="cboTenSanPhamCT" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnThemSize" alignment="1" min="-2" pref="26" max="-2" attributes="0"/>
+                              <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" alignment="0" attributes="0">
                                           <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
                                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="3" attributes="0">
-                                              <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
-                                              <Component id="txtSanPhamCTID" alignment="3" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel7" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                                              <Component id="txtDonGia" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="3" attributes="0">
-                                              <Component id="rdoHetHangSPCT" alignment="3" min="-2" max="-2" attributes="0"/>
-                                              <Component id="rdoConHangSPCT" alignment="3" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel8" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
-                                              <Component id="cboSize" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          </Group>
                                       </Group>
-                                      <Component id="cboTenSanPhamCT" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="btnThemSize" alignment="1" min="-2" pref="26" max="-2" attributes="0"/>
+                                      <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                                          <Component id="jLabel6" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="txtSoLuong" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="txtSanPhamCTID" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel7" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="txtDonGia" alignment="0" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="rdoHetHangSPCT" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="rdoConHangSPCT" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel8" linkSize="4" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="cboSize" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                          </Group>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                              <Component id="jScrollPane2" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnThemMau" min="-2" pref="26" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                                      <Component id="jScrollPane2" min="-2" max="-2" attributes="0"/>
-                                      <Component id="btnThemMau" min="-2" pref="26" max="-2" attributes="0"/>
-                                      <Group type="102" alignment="0" attributes="0">
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="jLabel9" linkSize="4" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="cboMauSac" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="txtGiamGia" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel10" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                      </Group>
+                                      <Component id="jLabel9" linkSize="4" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="cboMauSac" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="cboCTKM" alignment="3" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -394,7 +396,7 @@
                       <Component id="btnTienSPCT" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="btnTrangCuoi" linkSize="1" min="-2" pref="47" max="-2" attributes="0"/>
-                      <EmptySpace pref="357" max="32767" attributes="0"/>
+                      <EmptySpace pref="371" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -463,7 +465,7 @@
                         <Column editable="false" title="M&#xe0;u s&#x1eaf;c" type="java.lang.Object"/>
                         <Column editable="false" title="M&#xf4; t&#x1ea3;" type="java.lang.Object"/>
                         <Column editable="false" title="&#x110;&#x1a1;n gi&#xe1;" type="java.lang.Object"/>
-                        <Column editable="false" title="Gi&#x1ea3;m gi&#xe1;" type="java.lang.Object"/>
+                        <Column editable="false" title="Khuy&#x1ebf;n m&#xe3;i" type="java.lang.Object"/>
                         <Column editable="false" title="Tr&#x1ea1;ng th&#xe1;i" type="java.lang.Object"/>
                       </Table>
                     </Property>
@@ -640,16 +642,6 @@
           </SubComponents>
         </Container>
         <Component class="javax.swing.JComboBox" name="cboSize">
-          <Properties>
-            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="4">
-                <StringItem index="0" value="Item 1"/>
-                <StringItem index="1" value="Item 2"/>
-                <StringItem index="2" value="Item 3"/>
-                <StringItem index="3" value="Item 4"/>
-              </StringArray>
-            </Property>
-          </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="cboSizeMouseClicked"/>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cboSizeActionPerformed"/>
@@ -659,16 +651,6 @@
           </AuxValues>
         </Component>
         <Component class="javax.swing.JComboBox" name="cboMauSac">
-          <Properties>
-            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="4">
-                <StringItem index="0" value="Item 1"/>
-                <StringItem index="1" value="Item 2"/>
-                <StringItem index="2" value="Item 3"/>
-                <StringItem index="3" value="Item 4"/>
-              </StringArray>
-            </Property>
-          </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="cboMauSacMouseClicked"/>
           </Events>
@@ -729,10 +711,13 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="12" style="1"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Gi&#x1ea3;m gi&#xe1;"/>
+            <Property name="text" type="java.lang.String" value="CT Kuy&#x1ebf;n M&#xe3;i"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="txtGiamGia">
+        <Component class="javax.swing.JComboBox" name="cboCTKM">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

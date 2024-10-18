@@ -174,7 +174,7 @@ public class SanPhamDAO {
         return lst;
     }
 
-/////// hàm này có chức năng phân trang
+    /////// hàm này có chức năng phân trang
     public List<SanPham> phanTrangSanPham(int tienLui) {
         List<SanPham> lst = new ArrayList<>();
         try {

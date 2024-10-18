@@ -70,6 +70,20 @@ public class VoucherDAO extends QLCHBG_DAO<Voucher, Integer> {
                                     FROM [dbo].[khuyenMaiVoucher]
                                   """;
 
+    final String SELECT_ALL_Hoat_Dong_SQL = """
+                                  SELECT [voucher_id]
+                                        ,[tenVoucher]
+                                        ,[moTa]
+                                        ,[ngayBD]
+                                        ,[ngayKT]
+                                        ,[giamGia]
+                                        ,[giaToiDa]
+                                        ,[donToiThieu]
+                                        ,[trangThai]
+                                    FROM [dbo].[khuyenMaiVoucher]
+                                    WHERE trangThai = N'Hoạt động'        
+                                  """;
+
     final String SELECT_BY_ID_SQL = """
                                     SELECT [voucher_id]
                                           ,[tenVoucher]
@@ -110,6 +124,10 @@ public class VoucherDAO extends QLCHBG_DAO<Voucher, Integer> {
     @Override
     public List<Voucher> selectAll() {
         return selectBySQL(SELECT_ALL_SQL);
+    }
+
+    public List<Voucher> selectAllHoatDong() {
+        return selectBySQL(SELECT_ALL_Hoat_Dong_SQL);
     }
 
     @Override
@@ -163,6 +181,49 @@ public class VoucherDAO extends QLCHBG_DAO<Voucher, Integer> {
             }
         } catch (Exception e) {
             throw new RuntimeException();
+        }
+        return list;
+    }
+
+    // Hàm này có chức năng phân trang Voucher
+    public List<Voucher> phanTrangVoucher(int tienLui) {
+        List<Voucher> list = new ArrayList<>();
+        try {
+            String sql = """
+                         SELECT [tenVoucher]
+                                ,[moTa]
+                                ,[ngayBD]
+                                ,[ngayKT]
+                                ,[giamGia]
+                                ,[giaToiDa]
+                                ,[donToiThieu]
+                                ,[trangThai]
+                         FROM [dbo].[khuyenMaiVoucher]
+                         ORDER BY ngayBD DESC
+                         OFFSET ? ROWS
+                         FETCH NEXT 5 ROWS ONLY;
+                         """;
+            Connection cn = DB_Connect.getConnection();
+            PreparedStatement pstm = cn.prepareStatement(sql);
+            pstm.setInt(1, tienLui);
+            ResultSet resultSet = pstm.executeQuery();
+
+            while (resultSet.next()) {
+                Voucher entity = new Voucher();
+
+                entity.setTen(resultSet.getString("tenVoucher"));
+                entity.setMoTa(resultSet.getString("moTa"));
+                entity.setNgayBD(resultSet.getDate("ngayBD"));
+                entity.setNgayKT(resultSet.getDate("ngayKT"));
+                entity.setGiamGia(resultSet.getDouble("giamGia"));
+                entity.setGiaToiDa(resultSet.getDouble("giaToiDa"));
+                entity.setDonToiThieu(resultSet.getDouble("donToiThieu"));
+                entity.setTrangThai(resultSet.getString("trangThai"));
+
+                list.add(entity);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return list;
     }

@@ -171,13 +171,12 @@ public class SanPhamChiTietDAO {
                               dbo.sanPhamChiTiet.trangThai AS trangThai,
                               dbo.sanPhamChiTiet.moTa AS moTa
                          FROM dbo.chuongTrinhKhuyenMai 
-                         INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
-                         INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
-                         INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
-                         INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
-                         INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                         LEFT JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+                         LEFT JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                         LEFT JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                         LEFT JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                         LEFT JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
               where sanPham.sanPham_id = ?
-                
               """;
         List<SanPhamChiTiet> listSPCT = new ArrayList<>();
         try {
@@ -210,22 +209,74 @@ public class SanPhamChiTietDAO {
     // hàm này thực hiện phân trang sản phẩm chi tiết
     public List<SanPhamChiTiet> phanTrangSPCT(String sP_id, int tienLui) {
         sql = """
+                    SELECT dbo.size.giaTri AS size, 
+                           dbo.sanPham.sanPham_id AS sanPham_id, 
+                           dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
+                           dbo.mauSac.tenMau AS mauSac, 
+                           dbo.chuongTrinhKhuyenMai.giamGia AS giamGia, 
+                           dbo.sanPham.ten AS tenSanPham, 
+                           dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                           dbo.sanPhamChiTiet.donGia AS donGia, 
+                           dbo.sanPhamChiTiet.trangThai AS trangThai,
+                           dbo.sanPhamChiTiet.moTa AS moTa
+                   FROM dbo.chuongTrinhKhuyenMai 
+                   LEFT JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
+                   LEFT JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
+                   LEFT JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+                   LEFT JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+                   LEFT JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                   where sanPham.sanPham_id like ?
+                   order by ngayTaoSPCT desc
+                   offset ? rows  fetch next 5 rows only                
+              """;
+        List<SanPhamChiTiet> listSPCT = new ArrayList<>();
+        try {
+            con = DB_Connect.getConnection();
+            ps = con.prepareStatement(sql);
+            ps.setObject(1, sP_id);
+            ps.setObject(2, tienLui);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                SanPhamChiTiet spct = new SanPhamChiTiet(
+                        rs.getString("sPCT_id"),
+                        rs.getInt("soLuong"),
+                        rs.getBigDecimal("donGia"),
+                        rs.getString("sanPham_id"),
+                        rs.getString("trangThai"),
+                        rs.getString("mota"),
+                        rs.getInt("size"),
+                        rs.getString("mauSac"),
+                        rs.getInt("giamGia"),
+                        rs.getString("tenSanPham")
+                );
+                listSPCT.add(spct);
+            }
+            return listSPCT;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // hàm này thực hiện phân trang sản phẩm chi tiết
+    public List<SanPhamChiTiet> phanTrangSPCT1(String sP_id, int tienLui) {
+        sql = """
              SELECT dbo.size.giaTri AS size, 
-                    dbo.sanPham.sanPham_id AS sanPham_id, 
-                    dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
-                    dbo.mauSac.tenMau AS mauSac, 
-                    dbo.chuongTrinhKhuyenMai.giamGia AS giamGia, 
-                    dbo.sanPham.ten AS tenSanPham, 
-                    dbo.sanPhamChiTiet.soLuong AS soLuong, 
-                    dbo.sanPhamChiTiet.donGia AS donGia, 
-                    dbo.sanPhamChiTiet.trangThai AS trangThai,
-                    dbo.sanPhamChiTiet.moTa AS moTa
-            FROM dbo.chuongTrinhKhuyenMai 
-            INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
-            INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
-            INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
-            INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
-            INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
+                   dbo.sanPham.sanPham_id AS sanPham_id, 
+                   dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
+                   dbo.mauSac.tenMau AS mauSac, 
+                   dbo.chuongTrinhKhuyenMai.ten AS ten, 
+                   dbo.sanPham.ten AS tenSanPham, 
+                   dbo.sanPhamChiTiet.soLuong AS soLuong, 
+                   dbo.sanPhamChiTiet.donGia AS donGia, 
+                   dbo.sanPhamChiTiet.trangThai AS trangThai,
+                   dbo.sanPhamChiTiet.moTa AS moTa
+            FROM dbo.sanPhamChiTiet
+            LEFT JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.sanPhamChiTiet.sPCT_id = dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id 
+            LEFT JOIN dbo.chuongTrinhKhuyenMai ON dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id = dbo.chuongTrinhKhuyenMai.chuongTrinh_id 
+            LEFT JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
+            LEFT JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
+            LEFT JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
             where sanPham.sanPham_id like ?
             order by ngayTaoSPCT desc
             offset ? rows  fetch next 5 rows only
@@ -248,7 +299,7 @@ public class SanPhamChiTietDAO {
                         rs.getString("mota"),
                         rs.getInt("size"),
                         rs.getString("mauSac"),
-                        rs.getInt("giamGia"),
+                        rs.getString("ten"),
                         rs.getString("tenSanPham")
                 );
                 listSPCT.add(spct);
@@ -385,20 +436,23 @@ public class SanPhamChiTietDAO {
         ArrayList<SanPhamChiTiet> lst = new ArrayList<>();
         try {
             String sqlLocal = """
-                         SELECT     dbo.sanPhamChiTiet.sPCT_id AS sPCT_id, 
-                                    dbo.sanPham.ten AS tenSanPham, 
-                                    dbo.mauSac.tenMau AS mauSac, 
-                                    dbo.size.giaTri AS size, 
-                                    dbo.sanPhamChiTiet.donGia AS donGia, 
-                                    dbo.sanPhamChiTiet.soLuong AS soLuong, 
-                                    dbo.chuongTrinhKhuyenMai.giamGia AS giamGia
-                         FROM     dbo.chuongTrinhKhuyenMai 
-                         INNER JOIN dbo.sanPham_chuongTrinhKhuyenMai ON dbo.chuongTrinhKhuyenMai.chuongTrinh_id = dbo.sanPham_chuongTrinhKhuyenMai.chuongTrinh_id 
-                         INNER JOIN dbo.sanPhamChiTiet ON dbo.sanPham_chuongTrinhKhuyenMai.sPCT_id = dbo.sanPhamChiTiet.sPCT_id 
-                         INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
-                         INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
-                         INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
-                         where sanPham.trangThai like N'Đang bán'
+                        SELECT
+                             spct.sPCT_id AS sPCT_id,
+                             sp.ten AS tenSanPham,
+                             ms.tenMau AS mauSac,
+                             sz.giaTri AS size,
+                             spct.donGia AS donGia,
+                             spct.soLuong AS soLuong,
+                             ctkm.giamGia AS giamGia
+                         FROM
+                             dbo.sanPhamChiTiet spct
+                         LEFT JOIN dbo.sanPham sp ON spct.sanPham_id = sp.sanPham_id
+                         LEFT JOIN dbo.mauSac ms ON spct.mauSac_id = ms.mauSac_id
+                         LEFT JOIN dbo.size sz ON spct.size_id = sz.size_id
+                         LEFT JOIN dbo.sanPham_chuongTrinhKhuyenMai spctkm ON spct.sPCT_id = spctkm.sPCT_id
+                         LEFT JOIN dbo.chuongTrinhKhuyenMai ctkm ON spctkm.chuongTrinh_id = ctkm.chuongTrinh_id
+                         WHERE
+                             sp.trangThai = N'Đang bán';
                          """;
 
             Connection cn = DB_Connect.getConnection();

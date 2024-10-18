@@ -166,7 +166,8 @@ public class HoaDonChiTietDAO {
                         INNER JOIN dbo.mauSac ON dbo.sanPhamChiTiet.mauSac_id = dbo.mauSac.mauSac_id 
                         INNER JOIN dbo.sanPham ON dbo.sanPhamChiTiet.sanPham_id = dbo.sanPham.sanPham_id 
                         INNER JOIN dbo.size ON dbo.sanPhamChiTiet.size_id = dbo.size.size_id
-                        where hoaDonChiTiet.hoaDon_id like ? 
+                        where hoaDonChiTiet.hoaDon_id like ? and (trangThaiHDCT like N'Chờ thanh toán'
+                              or trangThaiHDCT like N'Hoàn thành')
                          """;
             Connection cn = DB_Connect.getConnection();
             PreparedStatement pstm = cn.prepareStatement(sqlLocal);

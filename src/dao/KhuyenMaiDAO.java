@@ -76,6 +76,18 @@ public class KhuyenMaiDAO extends QLCHBG_DAO<KhuyenMai, Integer> {
                                     WHERE chuongTrinh_id = ?
                                     """;
 
+    final String SELECT_BY_NAME_SQL = """
+                                    SELECT [chuongTrinh_id]
+                                          ,[ten]
+                                          ,[moTa]
+                                          ,[ngayBD]
+                                          ,[ngayKT]
+                                          ,[giamGia]
+                                          ,[trangThai]
+                                    FROM [dbo].[chuongTrinhKhuyenMai]
+                                    WHERE ten LIKE ?
+                                    """;
+
     @Override
     public void insert(KhuyenMai entity) {
         jdbcHelper.update(INSERT_SQL, entity.getTen(), entity.getMoTa(), entity.getNgayBD(),
@@ -107,6 +119,14 @@ public class KhuyenMaiDAO extends QLCHBG_DAO<KhuyenMai, Integer> {
         return list.get(0);
     }
 
+    public KhuyenMai selectByName(String ten) {
+        List<KhuyenMai> list = selectBySQL(SELECT_BY_NAME_SQL, ten);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
+    }
+
     @Override
     public List<KhuyenMai> selectBySQL(String sql, Object... args) {
         List<KhuyenMai> list = new ArrayList<>();
@@ -116,6 +136,45 @@ public class KhuyenMaiDAO extends QLCHBG_DAO<KhuyenMai, Integer> {
                 KhuyenMai entity = new KhuyenMai();
 
                 entity.setChuongTrinh_id(resultSet.getInt("chuongTrinh_id"));
+                entity.setTen(resultSet.getString("ten"));
+                entity.setMoTa(resultSet.getString("moTa"));
+                entity.setNgayBD(resultSet.getDate("ngayBD"));
+                entity.setNgayKT(resultSet.getDate("ngayKT"));
+                entity.setGiamGia(resultSet.getDouble("giamGia"));
+                entity.setTrangThai(resultSet.getString("trangThai"));
+
+                list.add(entity);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<KhuyenMai> phanTrangCTKM(int tienLui) {
+        List<KhuyenMai> list = new ArrayList<>();
+        try {
+            String sql = """
+                            SELECT [ten]
+                                    ,[moTa]
+                                    ,[ngayBD]
+                                    ,[ngayKT]
+                                    ,[giamGia]
+                                    ,[trangThai]
+                            FROM [dbo].[chuongTrinhKhuyenMai]
+                            ORDER BY ngayBD DESC
+                            OFFSET ? ROWS
+                            FETCH NEXT 5 ROWS ONLY;
+                         """;
+
+            Connection cn = DB_Connect.getConnection();
+            PreparedStatement pstm = cn.prepareStatement(sql);
+            pstm.setInt(1, tienLui);
+            ResultSet resultSet = pstm.executeQuery();
+
+            while (resultSet.next()) {
+                KhuyenMai entity = new KhuyenMai();
+
                 entity.setTen(resultSet.getString("ten"));
                 entity.setMoTa(resultSet.getString("moTa"));
                 entity.setNgayBD(resultSet.getDate("ngayBD"));

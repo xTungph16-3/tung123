@@ -171,6 +171,7 @@ public class HoaDonDAO {
                         INNER JOIN dbo.khachHang ON dbo.hoaDon.khachHang_id = dbo.khachHang.khachHang_id 
                         INNER JOIN dbo.nhanVien ON dbo.hoaDon.nhanVien_id = dbo.nhanVien.nhanVien_id 
                         LEFT JOIN dbo.thanhToan ON dbo.hoaDon.thanhToan_id = dbo.thanhToan.thanhToan_id
+                        WHERE hoadon.hoaDon_id = ?
                         order by hoaDon.ngayTaoHD desc
                         OFFSET 0 ROWS
                         FETCH NEXT 5 ROWS ONLY;
@@ -218,9 +219,8 @@ public class HoaDonDAO {
                         INNER JOIN dbo.khachHang ON dbo.hoaDon.khachHang_id = dbo.khachHang.khachHang_id 
                         INNER JOIN dbo.nhanVien ON dbo.hoaDon.nhanVien_id = dbo.nhanVien.nhanVien_id 
                         LEFT JOIN dbo.thanhToan ON dbo.hoaDon.thanhToan_id = dbo.thanhToan.thanhToan_id
-                        order by hoaDon.ngayTaoHD desc
-                                                   
-                                                                                                     
+                        where hoadon.trangThai = ?
+                        order by hoaDon.ngayTaoHD desc                                               
                          """;
             con = DB_Connect.getConnection();
             ps = con.prepareStatement(sql);

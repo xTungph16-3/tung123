@@ -34,7 +34,17 @@ public class BanHangDAO {
 
         try {
             String sqlLocal = """
-                                select * from hoaDon
+                                SELECT [hoaDon_id]
+                                      ,[ngayTaoHD]
+                                      ,[nhanVien_id]
+                                      ,[tongTien]
+                                      ,[trangThai]
+                                      ,[khachHang_id]
+                                      ,[thanhToan_id]
+                                      ,[hanDoiTra]
+                                      ,[ghiChu]
+                                      ,[voucher_id]
+                                  FROM [dbo].[hoaDon]
                                 where trangThai = N'Chờ thanh toán' and nhanVien_id = ?
                                 order by ngayTaoHD desc
                               """;
@@ -275,38 +285,17 @@ public class BanHangDAO {
         }
     }
 
-    ///hàm này có chức năng thêm sản phẩm vào giỏ
-    public int insertHoaDonCTPROC(HoaDonChiTiet hDCT) {
-        sql = "{CALL ThemSanPhamVaoHoaDonChiTiet(?,?,?,?)}";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareCall(sql);
-            if (hDCT != null) {
-                ps.setObject(1, hDCT.getHDCT_id());
-                ps.setObject(2, hDCT.getHoaDon_id());
-                ps.setObject(3, hDCT.getSPCT_id());
-                ps.setObject(4, hDCT.getSoLuong());
-                // ps.setObject(5, hDCT.getGiaBan());
-                //  ps.setObject(6, hDCT.getThanhTien());
-                return ps.executeUpdate();
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
     /// hàm này có chức năng xoá sản phẩm khỏi giỏ hàng
     public int duaHDCTVeTrangThaiHuy(String hDCT_id, String hoaDon_id, String sPCT_id) {
         sql = "{CALL duaHDCTVeTrangThaiHuy(?,?,?)}";
         try {
             con = DB_Connect.getConnection();
+
             ps = con.prepareCall(sql);
             ps.setObject(1, hDCT_id);
             ps.setObject(2, hoaDon_id);
             ps.setObject(3, sPCT_id);
+
             return ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -330,69 +319,20 @@ public class BanHangDAO {
             return 0;
         }
     }
-// hàm này có chức năng chỉnh sửa số lượng sản phẩm trong giỏ hàng
-
-    public int suaSLSPTrongGio(String hoaDon_id, String hDCT_id, String sPCT_id, int soLuongSPThayDoi, int soLuongSPTrongGio) {
-        sql = "{CALL CHINHSUASOLUONGSP(?,?,?,?,?)}";
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareCall(sql);
-            ps.setObject(1, hoaDon_id);
-            ps.setObject(2, hDCT_id);
-            ps.setObject(3, sPCT_id);
-            ps.setObject(4, soLuongSPThayDoi);
-            ps.setObject(5, soLuongSPTrongGio);
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-
-    /// hàm này có tác dụng lấy ra số lượng của sản phẩm chi tiết theo mã sản phẩm chi tiết
-    public SanPhamChiTiet selectSoLuongSPCTAnđonGia(String sPCT_id) {
-        sql = """
-              SELECT  [sPCT_id]
-                    ,[soLuong]
-                    ,[donGia]
-                    ,[size_id]
-                    ,[anh]
-                    ,[mauSac_id]
-                    ,[sanPham_id]
-                FROM [dbo].[sanPhamChiTiet] 
-              where sPCT_id like ?
-              """;
-        int soLuong = 0;
-        BigDecimal donGia;
-        try {
-            con = DB_Connect.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setObject(1, sPCT_id);
-            rs = ps.executeQuery();
-            SanPhamChiTiet spct = new SanPhamChiTiet();
-            while (rs.next()) {
-                spct.setSoLuong(rs.getInt("soLuong"));
-                spct.setDonGia(rs.getBigDecimal("donGia"));
-                soLuong = spct.getSoLuong();
-            }
-            return spct;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     /// thanh toán
     public int thanhToan(String hoaDon_id, BigDecimal tongTien, int maThanhToan, String maKH, String ghiChu) {
         sql = "{CALL THANHTOANHOADON(?,?,?,?,?)}";
         try {
             con = DB_Connect.getConnection();
+
             ps = con.prepareCall(sql);
             ps.setObject(1, hoaDon_id);
             ps.setObject(2, tongTien);
             ps.setObject(3, maThanhToan);
             ps.setObject(4, maKH);
             ps.setObject(5, ghiChu);
+
             return ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -551,7 +491,7 @@ public class BanHangDAO {
     }
 
     public int updateTrangThaiHoaDon(String hoaDon_id, String trangThai) {
-        
+
         String sql = """
                         UPDATE [dbo].[hoaDon]
                         SET [trangThai] = ?                
@@ -566,6 +506,38 @@ public class BanHangDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
+        }
+    }
+
+    /**
+     * Cập nhật số lượng sản phẩm còn lại trong cơ sở dữ liệu và bảng tblSanPham
+     *
+     * @param spctId ID của sản phẩm chi tiết
+     * @param soLuongBan Số lượng sản phẩm đã bán
+     */
+    
+    public void updateSoLuongSanPham(String spctId, int soLuongBan) {
+        Connection con = null;
+        ResultSet rs = null;
+        PreparedStatement ps = null;
+        try {
+            // Chuẩn bị câu lệnh SQL để cập nhật số lượng sản phẩm trong cơ sở dữ liệu
+            String sqlUpdate = """
+                                UPDATE [dbo].[sanPhamChiTiet]
+                                   SET [soLuong] = soLuong - ?
+                                 WHERE [sPCT_id] = ?
+                               """;
+            con = DB_Connect.getConnection();
+            ps = con.prepareStatement(sqlUpdate);
+
+            // Thiết lập giá trị cho các tham số của câu lệnh SQL
+            ps.setInt(1, soLuongBan); // Trừ số lượng bán từ số lượng hiện tại
+            ps.setString(2, spctId); // ID của sản phẩm chi tiết
+
+            // Thực thi câu lệnh SQL
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace(); // In ra lỗi nếu có
         }
     }
 }

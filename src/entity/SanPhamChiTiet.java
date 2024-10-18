@@ -40,6 +40,8 @@ public class SanPhamChiTiet {
     private String mauSac;
 
     private int giamGia;
+    
+    private String tenCTKM;
 
     private String tenSanPham;
 
@@ -67,6 +69,19 @@ public class SanPhamChiTiet {
         this.tenSanPham = tenSanPham;
     }
 
+    public SanPhamChiTiet(String sPCT_id, int soLuong, BigDecimal donGia, int size_id, String anh, int mauSac_id, String sanPham_id, String trangThai, String moTa, String tenCTKM) {
+        this.sPCT_id = sPCT_id;
+        this.soLuong = soLuong;
+        this.donGia = donGia;
+        this.size_id = size_id;
+        this.anh = anh;
+        this.mauSac_id = mauSac_id;
+        this.sanPham_id = sanPham_id;
+        this.trangThai = trangThai;
+        this.moTa = moTa;
+        this.tenCTKM = tenCTKM;
+    }
+    
     public SanPhamChiTiet(String sPCT_id, int soLuong, BigDecimal donGia, String anh, String sanPham_id, String trangThai, String moTa, int size, String mauSac, int giamGia, String tenSanPham) {
         this.sPCT_id = sPCT_id;
         this.soLuong = soLuong;
@@ -132,4 +147,18 @@ public class SanPhamChiTiet {
         this.thanhTien = thanhTien;
     }
 
+    public SanPhamChiTiet(String sPCT_id, int soLuong, BigDecimal donGia, String sanPham_id, String trangThai, String moTa, int size, String mauSac, String tenCTKM, String tenSanPham) {
+        this.sPCT_id = sPCT_id;
+        this.soLuong = soLuong;
+        this.donGia = donGia;
+        this.sanPham_id = sanPham_id;
+        this.trangThai = trangThai;
+        this.moTa = moTa;
+        this.size = size;
+        this.mauSac = mauSac;
+        this.tenCTKM = tenCTKM;
+        this.tenSanPham = tenSanPham;
+    }
+
+    
 }

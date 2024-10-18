@@ -67,7 +67,6 @@ public class HoaDon_View extends javax.swing.JPanel {
         fillTableHoaDon(dao.phanTrangHoaDon(tienLui));
 
         setSoTrang();
-        //  fillTableHoaDonChiTiet(dao2.selectAll());
     }
 
     public void AddPleacehoderStyle(JTextField textField) {
@@ -123,7 +122,6 @@ public class HoaDon_View extends javax.swing.JPanel {
                 hdct.getTenSanPham(),
                 hdct.getSize(),
                 hdct.getMauSac(),
-                hdct.getChatLieu(),
                 hdct.getGiaBan(),
                 hdct.getSoLuong(),
                 hdct.getThanhTien()
@@ -271,7 +269,7 @@ public class HoaDon_View extends javax.swing.JPanel {
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel5.setText("Trạng thái:");
 
-        cbo_TrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tất cả", "Hoàn thành", "Đã huỷ", "Chờ thanh toán", "Trả hàng" }));
+        cbo_TrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tất cả", "Hoàn thành", "Đã huỷ", "Chờ thanh toán" }));
         cbo_TrangThai.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 cbo_TrangThaiItemStateChanged(evt);
@@ -284,6 +282,11 @@ public class HoaDon_View extends javax.swing.JPanel {
         });
 
         btnResetTable1.setText("Reset Table");
+        btnResetTable1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetTable1ActionPerformed(evt);
+            }
+        });
 
         btnTimKiem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/search3.png"))); // NOI18N
         btnTimKiem.addActionListener(new java.awt.event.ActionListener() {
@@ -327,10 +330,7 @@ public class HoaDon_View extends javax.swing.JPanel {
 
         tblHD.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null}
+
             },
             new String [] {
                 "Mã hóa đơn", "Mã NV", "Tên NV", "Mã KH", "Tên KH", "Tổng tiền", "Kiểu thanh toán", "Ngày tạo", "Trạng thái", "Ghi chú"
@@ -461,11 +461,11 @@ public class HoaDon_View extends javax.swing.JPanel {
 
             },
             new String [] {
-                "STT", "Mã sản phầm", "Tên sản phẩm", "Size", "Màu sắc", "Chất liệu", "Đơn giá", "Số lượng", "Thành tiền"
+                "STT", "Mã sản phầm", "Tên sản phẩm", "Size", "Màu sắc", "Đơn giá", "Số lượng", "Thành tiền"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -807,164 +807,140 @@ public class HoaDon_View extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        // Kiểm tra xem đã chọn hàng nào chưa
         if (tblHD.getSelectedRow() < 0) {
             JOptionPane.showMessageDialog(this, "Chọn hoá đơn cần xuất file!!");
-        } else if (tblHD.getValueAt(tblHD.getSelectedRow(), 8).toString().equalsIgnoreCase("Đã huỷ") || tblHD.getValueAt(tblHD.getSelectedRow(), 8).toString().equalsIgnoreCase("Chờ thanh toán")) {
-            JOptionPane.showMessageDialog(this, "Hoá đơn " + tblHD.getValueAt(tblHD.getSelectedRow(), 8) + " không thể xuất!!");
-        } else if (tblHDCT.getRowCount() > 0) {
+            return;
+        }
 
-            String path = "";
-            JFileChooser jfile = new JFileChooser();
-            jfile.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            int x = jfile.showSaveDialog(this);
-            if (x == JFileChooser.APPROVE_OPTION) {
-                path = jfile.getSelectedFile().getAbsolutePath();
-                System.out.println(path);
-            }
-            Document doc = new Document();
-            try {
-                PdfWriter.getInstance(doc, new FileOutputStream(path + "/" + tblHD.getValueAt(tblHD.getSelectedRow(), 0).toString().trim() + ".pdf"));
-                String filePath = path + "/" + tblHD.getValueAt(tblHD.getSelectedRow(), 0).toString().trim() + ".pdf";
-                doc.open();// mở luồng ghi file
+        // Kiểm tra xem hoá đơn có thể xuất được không
+        String trangThaiHoaDon = tblHD.getValueAt(tblHD.getSelectedRow(), 8).toString();
+        if (trangThaiHoaDon.equalsIgnoreCase("Đã huỷ") || trangThaiHoaDon.equalsIgnoreCase("Chờ thanh toán")) {
+            JOptionPane.showMessageDialog(this, "Hoá đơn " + trangThaiHoaDon + " không thể xuất!!");
+            return;
+        }
 
-                String hoaDon_id = tblHD.getValueAt(tblHD.getSelectedRow(), 0).toString();
-                String tenKhachHang = tblHD.getValueAt(tblHD.getSelectedRow(), 4).toString();
-                String ngayTaoHoaDon = tblHD.getValueAt(tblHD.getSelectedRow(), 7).toString();
-                Date now = new Date();
-                SimpleDateFormat fomater = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                String nowS = fomater.format(now);
-                // tao logo cho hoa don
-                URL url = TrangChu.class.getResource("/img/nike.png");
-                Image logo = Image.getInstance(url);
-                logo.scaleAbsolute(60f, 60f); // Điều chỉnh kích thước của logo
-                logo.setAlignment(Element.ALIGN_LEFT);
-                doc.add(logo);
-                // set tieu de cho hoa don
-                com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 32, com.itextpdf.text.Font.BOLD, BaseColor.BLACK);
-                Paragraph title = new Paragraph("HOA DON BAN LE NIKE ", titleFont);
-                title.setAlignment(Paragraph.ALIGN_CENTER);
-                doc.add(title);
-                doc.add(new Paragraph("\n"));
-                //goi ra cac doan thong tin
-                //tạo phông chữ cho các tiêu đề thông tin
-                com.itextpdf.text.Font infoFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.NORMAL, BaseColor.DARK_GRAY);
-                doc.add(new Paragraph("Ma hoa don: " + hoaDon_id, infoFont));
-                doc.add(new Paragraph("Ten khach hang: " + removeDiacritics(tenKhachHang), infoFont));
-                doc.add(new Paragraph("Ngay tao hoa don: " + ngayTaoHoaDon, infoFont));
-                doc.add(new Paragraph("Ngay xuat hoa don: " + nowS, infoFont));
-                doc.add(new Paragraph("Nguoi tao hoa do: " + removeDiacritics(lblNguoiTao.getText()), infoFont));
-                doc.add(new Paragraph("Nguoi xuat hoa don: " + removeDiacritics(XLogin.user.getHoTen()), infoFont));
-                doc.add(new Paragraph("Tong tien cua hoa don: " + lblTongTien.getText(), infoFont));
-                doc.add(new Paragraph("\n"));
-                doc.add(new Paragraph("\n"));
-                doc.add(new Paragraph("Danh sach san pham da mua"));
-                ///tạo phông chữ cho bảng
-                com.itextpdf.text.Font timesNewRoman = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.BOLD, BaseColor.DARK_GRAY);
-                com.itextpdf.text.Font timesNewRoman2 = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.NORMAL, BaseColor.DARK_GRAY);
-
-                // Tạo bảng
-                PdfPTable tbl = new PdfPTable(8);
-                tbl.setWidthPercentage(100);
-                tbl.setSpacingBefore(10f);
-                tbl.setSpacingAfter(10f);
-
-                // Tieu de bang
-                PdfPCell cell1 = new PdfPCell(new Phrase("Ten san pham", timesNewRoman));
-                cell1.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                tbl.addCell(cell1);
-
-                PdfPCell cell2 = new PdfPCell(new Phrase("Size", timesNewRoman));
-                cell2.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                tbl.addCell(cell2);
-
-                PdfPCell cell3 = new PdfPCell(new Phrase("Mau sac", timesNewRoman));
-                cell3.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                tbl.addCell(cell3);
-
-                PdfPCell cell4 = new PdfPCell(new Phrase("Chat lieu", timesNewRoman));
-                cell4.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                tbl.addCell(cell4);
-
-                PdfPCell cell5 = new PdfPCell(new Phrase("Hang", timesNewRoman));
-                cell5.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                tbl.addCell(cell5);
-
-                PdfPCell cell6 = new PdfPCell(new Phrase("Don gia", timesNewRoman));
-                cell6.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                tbl.addCell(cell6);
-
-                PdfPCell cell7 = new PdfPCell(new Phrase("So luong", timesNewRoman));
-                cell7.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                tbl.addCell(cell7);
-
-                PdfPCell cell8 = new PdfPCell(new Phrase("Thanh tien", timesNewRoman));
-                cell8.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                tbl.addCell(cell8);
-
-                //  Bang Du lieu san pham
-                for (int i = 0; i < tblHDCT.getRowCount(); i++) {
-                    if (!tblHDCT.getValueAt(i, 7).toString().equals("0")) {
-                        tbl.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 1).toString()), timesNewRoman2)));
-                        tbl.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 2).toString()), timesNewRoman2)));
-                        tbl.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 3).toString()), timesNewRoman2)));
-                        tbl.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 4).toString()), timesNewRoman2)));
-                        tbl.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 5).toString()), timesNewRoman2)));
-                        tbl.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 6).toString()), timesNewRoman2)));
-                        tbl.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 7).toString()), timesNewRoman2)));
-                        tbl.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 8).toString()), timesNewRoman2)));
-                    }
-
-                }
-
-                PdfPCell totalCell = new PdfPCell(new Phrase("Thanh tien: " + lblTongTien.getText(), timesNewRoman));
-                totalCell.setColspan(8); // Đặt colspan bằng số lượng cột của bảng
-                totalCell.setHorizontalAlignment(Element.ALIGN_RIGHT); // Căn chỉnh về bên phải
-                tbl.addCell(totalCell);
-                doc.add(tbl);
-
-                doc.add(new Paragraph("\n"));
-                doc.add(new Paragraph("\n"));
-
-                com.itextpdf.text.Font titleFont2 = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 20, com.itextpdf.text.Font.BOLD, BaseColor.BLACK);
-                com.itextpdf.text.Font hanTraFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.BOLD, BaseColor.BLACK);
-
-                Paragraph hanTra = new Paragraph("Han tra hang 2 ngay sau khi thanh toan hoa don", hanTraFont);
-                doc.add(hanTra);
-
-                Paragraph title2 = new Paragraph("CHUC QUY KHACH MUA SAM VUI VE!!!!", titleFont2);
-                doc.add(title2);
-                doc.add(new Paragraph("\n"));
-
-                //Tạo footer bằng bảng
-                PdfPTable footer = new PdfPTable(1);
-                footer.setWidthPercentage(100);
-                footer.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-
-                // Tạo font Times New Roman cho footer
-                com.itextpdf.text.Font footerFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.BOLD, BaseColor.BLACK);
-
-                // Thêm nội dung footer với font Times New Roman
-                PdfPCell footerCell = new PdfPCell(new Phrase("----------------------------- CAM ON QUY KHACH DA LUA CHON CUA HANG ---------------------------", footerFont));
-                footer.addCell(footerCell);
-                doc.add(footer);
-
-                doc.close();
-                System.out.println("Xuất hoá đơn bán lẻ nè hhihi");
-                int choice = JOptionPane.showConfirmDialog(this, "Xem hoá đơn vừa tạo?", "XEM HOÁ ĐƠN", JOptionPane.YES_OPTION);
-                if (choice == JOptionPane.YES_OPTION) {
-                    openPdfFile(filePath);
-                }
-
-            } catch (DocumentException ex) {
-                Logger.getLogger(HoaDon_View.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(HoaDon_View.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(HoaDon_View.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } else {
+        // Kiểm tra xem hoá đơn có sản phẩm nào không
+        if (tblHDCT.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Hoá đơn đã trả hết hàng!!");
+            return;
+        }
+
+        // Chọn thư mục để lưu file PDF
+        String path = "";
+        JFileChooser jfile = new JFileChooser();
+        jfile.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int x = jfile.showSaveDialog(this);
+        if (x == JFileChooser.APPROVE_OPTION) {
+            path = jfile.getSelectedFile().getAbsolutePath();
+        } else {
+            return;
+        }
+
+        // Khởi tạo tài liệu PDF
+        Document doc = new Document();
+        try {
+            String maHoaDon = tblHD.getValueAt(tblHD.getSelectedRow(), 0).toString().trim();
+            String filePath = path + "/" + maHoaDon + ".pdf";
+            PdfWriter.getInstance(doc, new FileOutputStream(filePath));
+            doc.open();
+
+            // Dữ liệu hoá đơn
+            String tenKhachHang = tblHD.getValueAt(tblHD.getSelectedRow(), 4).toString();
+            String ngayTaoHoaDon = tblHD.getValueAt(tblHD.getSelectedRow(), 7).toString();
+            Date now = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String ngayXuatHoaDon = formatter.format(now);
+
+            // Thêm logo
+            URL url = TrangChu.class.getResource("/img/nike.png");
+            Image logo = Image.getInstance(url);
+            logo.scaleAbsolute(60f, 60f); // Điều chỉnh kích thước logo
+            logo.setAlignment(Element.ALIGN_LEFT);
+            doc.add(logo);
+
+            // Thêm tiêu đề
+            com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 32, com.itextpdf.text.Font.BOLD, BaseColor.BLACK);
+            Paragraph title = new Paragraph("HOA DON BAN LE LIKEY", titleFont);
+            title.setAlignment(Paragraph.ALIGN_CENTER);
+            doc.add(title);
+            doc.add(new Paragraph("\n"));
+
+            // Thêm thông tin hoá đơn
+            com.itextpdf.text.Font infoFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.NORMAL, BaseColor.DARK_GRAY);
+            doc.add(new Paragraph("Ma hoa don: " + maHoaDon, infoFont));
+            doc.add(new Paragraph("Ten khach hang: " + removeDiacritics(tenKhachHang), infoFont));
+            doc.add(new Paragraph("Ngay tao hoa don: " + ngayTaoHoaDon, infoFont));
+            doc.add(new Paragraph("Ngay xuat hoa don: " + ngayXuatHoaDon, infoFont));
+            doc.add(new Paragraph("Nguoi tao hoa don: " + removeDiacritics(lblNguoiTao.getText()), infoFont));
+            doc.add(new Paragraph("Nguoi xuat hoa don: " + removeDiacritics(XLogin.user.getHoTen()), infoFont));
+            doc.add(new Paragraph("Tong tien cua hoa don: " + lblTongTien.getText(), infoFont));
+            doc.add(new Paragraph("\n"));
+            doc.add(new Paragraph("Danh sach san pham da mua", infoFont));
+
+            // Tạo bảng cho các sản phẩm trong hoá đơn
+            PdfPTable table = new PdfPTable(8); // Sửa lại số cột thành 7
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+
+            // Tiêu đề bảng
+            com.itextpdf.text.Font headerFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.BOLD, BaseColor.DARK_GRAY);
+            String[] headers = {"STT", "Ma san pham", "Ten san pham", "Size", "Mau sac", "Đơn gia", "So luong", "Thanh tien"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+                cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                table.addCell(cell);
+            }
+
+            // Dữ liệu bảng
+            com.itextpdf.text.Font dataFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.NORMAL, BaseColor.DARK_GRAY);
+            for (int i = 0; i < tblHDCT.getRowCount(); i++) {
+                table.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 0).toString()), dataFont))); // STT
+                table.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 1).toString()), dataFont))); // Mã sản phẩm
+                table.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 2).toString()), dataFont))); // Tên sản phẩm
+                table.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 3).toString()), dataFont))); // Size
+                table.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 4).toString()), dataFont))); // Màu sắc
+                table.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 5).toString()), dataFont))); // Đơn giá
+                table.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 6).toString()), dataFont))); // Số lượng
+                table.addCell(new PdfPCell(new Phrase(removeDiacritics(tblHDCT.getValueAt(i, 7).toString()), dataFont))); // Thành tiền
+            }
+
+            // Thêm hàng tổng tiền
+            PdfPCell totalCell = new PdfPCell(new Phrase("Tong tien: " + lblTongTien.getText(), headerFont));
+            totalCell.setColspan(8); // Gộp cột
+            totalCell.setHorizontalAlignment(Element.ALIGN_RIGHT); // Căn phải
+            table.addCell(totalCell);
+
+            doc.add(table);
+
+            // Thêm footer
+            com.itextpdf.text.Font footerFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.BOLD, BaseColor.BLACK);
+            Paragraph hanTra = new Paragraph("Han tra hang 2 ngay sau khi thanh toan hoa đon", footerFont);
+            doc.add(hanTra);
+
+            com.itextpdf.text.Font footerTitleFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 20, com.itextpdf.text.Font.BOLD, BaseColor.BLACK);
+            Paragraph footerTitle = new Paragraph("CHUC QUY KHACH MUA SAM VUI VE!!!!", footerTitleFont);
+            doc.add(footerTitle);
+
+            PdfPTable footerTable = new PdfPTable(1);
+            footerTable.setWidthPercentage(100);
+            footerTable.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+            PdfPCell footerCell = new PdfPCell(new Phrase("----------------------------- CAM ON QUY KHACH ĐA LUA CHON CUA HANG ---------------------------", footerFont));
+            footerTable.addCell(footerCell);
+            doc.add(footerTable);
+
+            doc.close();
+
+            // Hiển thị thông báo hỏi xem có muốn mở file PDF không
+            int choice = JOptionPane.showConfirmDialog(this, "Xem hoá đơn vừa tạo?", "XEM HOÁ ĐƠN", JOptionPane.YES_OPTION);
+            if (choice == JOptionPane.YES_OPTION) {
+                openPdfFile(filePath);
+            }
+
+        } catch (DocumentException | IOException ex) {
+            Logger.getLogger(HoaDon_View.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Có lỗi xảy ra khi xuất hoá đơn. Vui lòng thử lại.");
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -1022,6 +998,12 @@ public class HoaDon_View extends javax.swing.JPanel {
     private void tblHDMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblHDMouseEntered
         // TODO add your handling code here:
     }//GEN-LAST:event_tblHDMouseEntered
+
+    private void btnResetTable1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetTable1ActionPerformed
+        // TODO add your handling code here:
+        txtMaHoaDon.setText("");
+
+    }//GEN-LAST:event_btnResetTable1ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

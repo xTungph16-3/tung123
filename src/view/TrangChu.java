@@ -29,7 +29,7 @@ public class TrangChu extends javax.swing.JFrame {
     public TrangChu() {
         initComponents();
         setLocationRelativeTo(null);
-        setTitle("Ứng dụng bán giày tại cửa hàng NIKE - NHÓM 1");
+        setTitle("Ứng dụng bán giày tại cửa hàng LIKEY - NHÓM 1");
         //Image icon = Toolkit.getDefaultToolkit().getImage("");
         URL url = TrangChu.class.getResource("/img/nike (1).png");
         setIconImage(new ImageIcon(url).getImage());
@@ -80,7 +80,7 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         lblThongTinDangNhap = new javax.swing.JLabel();
         jpnView = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -101,7 +101,7 @@ public class TrangChu extends javax.swing.JFrame {
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
-        jLabel2.setText("Nike");
+        jLabel2.setText("LIKEY");
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nike.png"))); // NOI18N
 
@@ -491,7 +491,7 @@ public class TrangChu extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addGap(240, 240, 240)
                 .addComponent(lblThongTinDangNhap)
-                .addContainerGap(658, Short.MAX_VALUE))
+                .addContainerGap(671, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -505,27 +505,23 @@ public class TrangChu extends javax.swing.JFrame {
         jpnView.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.lightGray));
         jpnView.setPreferredSize(new java.awt.Dimension(1159, 700));
 
-        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nike-web-banner-main-1-1536x768.png"))); // NOI18N
-        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel6MouseClicked(evt);
-            }
-        });
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/giay-the-thao-1a-jpg-1655689580-20062022084620.jpg"))); // NOI18N
 
         javax.swing.GroupLayout jpnViewLayout = new javax.swing.GroupLayout(jpnView);
         jpnView.setLayout(jpnViewLayout);
         jpnViewLayout.setHorizontalGroup(
             jpnViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpnViewLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 1149, Short.MAX_VALUE))
+                .addGap(25, 25, 25)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 1091, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jpnViewLayout.setVerticalGroup(
             jpnViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpnViewLayout.createSequentialGroup()
-                .addContainerGap(51, Short.MAX_VALUE)
-                .addComponent(jLabel6)
-                .addGap(32, 32, 32))
+            .addGroup(jpnViewLayout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 643, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         jMenuBar1.setBackground(new java.awt.Color(204, 204, 204));
@@ -777,11 +773,6 @@ public class TrangChu extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jMenu2ActionPerformed
 
-    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_jLabel6MouseClicked
-
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
         this.dangXuat();
@@ -852,7 +843,7 @@ public class TrangChu extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
